@@ -78,9 +78,8 @@ export default function HomePage() {
 const handleSingleLogin = (e) => {
     e.preventDefault();
     
-    // Ambil nilai email (mengakomodasi nama variabel 'email' atau 'emailInput')
-    const rawEmail = typeof emailInput !== 'undefined' ? emailInput : (typeof email !== 'undefined' ? email : '');
-    const cleanEmail = rawEmail.trim().toLowerCase();
+    // Ambil dari state inputEmail
+    const cleanEmail = inputEmail ? inputEmail.trim().toLowerCase() : '';
 
     // 1. Cek input kosong
     if (!cleanEmail) {
@@ -88,7 +87,7 @@ const handleSingleLogin = (e) => {
       return;
     }
 
-    // 2. Ambil daftar email valid dari allowedEmails atau fallback ke submissions
+    // 2. Ambil daftar email terdaftar
     let validList = [];
     if (Array.isArray(allowedEmails) && allowedEmails.length > 0) {
       validList = allowedEmails;
@@ -96,14 +95,14 @@ const handleSingleLogin = (e) => {
       validList = [...new Set(submissions.map(item => item.email || item.Email || item[1]))];
     }
 
-    // 3. Jika daftar email belum ter-fetch dari server
+    // 3. Jika data belum siap dari Google Sheets
     if (validList.length === 0) {
-      alert("Sedang menghubungkan ke server. Silakan tunggu 2-3 detik atau klik 'Sync Data' lalu coba lagi.");
+      alert("Sedang menghubungkan ke server. Silakan tunggu 2-3 detik lalu coba lagi.");
       if (typeof fetchSheetsData === 'function') fetchSheetsData(true);
       return;
     }
 
-    // 4. Normalisasi daftar email ke huruf kecil
+    // 4. Normalisasi daftar email
     const formattedAllowedEmails = validList
       .filter(Boolean)
       .map(item => {
@@ -113,7 +112,7 @@ const handleSingleLogin = (e) => {
         return String(item).trim().toLowerCase();
       });
 
-    // 5. CEK KEAMANAN
+    // 5. Cek otorisasi
     const isAllowed = formattedAllowedEmails.includes(cleanEmail);
 
     if (!isAllowed) {
@@ -121,13 +120,10 @@ const handleSingleLogin = (e) => {
       return;
     }
 
-    // 6. Izinkan login
+    // 6. Login Berhasil
     localStorage.setItem('user_app_email', cleanEmail);
     setUserEmail(cleanEmail);
-    
-    // Reset input email
-    if (typeof setEmailInput === 'function') setEmailInput('');
-    if (typeof setEmail === 'function') setEmail('');
+    setInputEmail(''); // Reset input menggunakan setInputEmail
   };
 
   const handleLogout = () => {
