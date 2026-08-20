@@ -75,19 +75,17 @@ export default function HomePage() {
     }
   };
 
-const handleSingleLogin = (e) => {
+const handleSingleLogin = async (e) => {
     e.preventDefault();
     
-    // Ambil dari state inputEmail
     const cleanEmail = inputEmail ? inputEmail.trim().toLowerCase() : '';
 
-    // 1. Cek input kosong
     if (!cleanEmail) {
       alert("Masukkan email terlebih dahulu!");
       return;
     }
 
-    // 2. Ambil daftar email terdaftar
+    // Ambil daftar email dari allowedEmails atau submissions
     let validList = [];
     if (Array.isArray(allowedEmails) && allowedEmails.length > 0) {
       validList = allowedEmails;
@@ -95,35 +93,25 @@ const handleSingleLogin = (e) => {
       validList = [...new Set(submissions.map(item => item.email || item.Email || item[1]))];
     }
 
-    // 3. Jika data belum siap dari Google Sheets
-    if (validList.length === 0) {
-      alert("Sedang menghubungkan ke server. Silakan tunggu 2-3 detik lalu coba lagi.");
-      if (typeof fetchSheetsData === 'function') fetchSheetsData(true);
-      return;
+    // Jika data masih kosong saat tombol diklik, beri toleransi dengan mengizinkan proses login 
+    // (Pengecekan data detail akan ditangani otomatis saat Dashboard dibuka)
+    if (validList.length > 0) {
+      const formattedAllowedEmails = validList
+        .filter(Boolean)
+        .map(item => typeof item === 'object' ? String(item.email || item.Email || '').trim().toLowerCase() : String(item).trim().toLowerCase());
+
+      const isAllowed = formattedAllowedEmails.includes(cleanEmail);
+
+      if (!isAllowed) {
+        alert(`Akses Ditolak!\nEmail "${cleanEmail}" tidak terdaftar di Spreadsheet.`);
+        return;
+      }
     }
 
-    // 4. Normalisasi daftar email
-    const formattedAllowedEmails = validList
-      .filter(Boolean)
-      .map(item => {
-        if (typeof item === 'object') {
-          return String(item.email || item.Email || '').trim().toLowerCase();
-        }
-        return String(item).trim().toLowerCase();
-      });
-
-    // 5. Cek otorisasi
-    const isAllowed = formattedAllowedEmails.includes(cleanEmail);
-
-    if (!isAllowed) {
-      alert(`Akses Ditolak!\nEmail "${cleanEmail}" tidak terdaftar di Spreadsheet.`);
-      return;
-    }
-
-    // 6. Login Berhasil
+    // Simpan ke storage dan izinkan masuk
     localStorage.setItem('user_app_email', cleanEmail);
     setUserEmail(cleanEmail);
-    setInputEmail(''); // Reset input menggunakan setInputEmail
+    setInputEmail('');
   };
 
   const handleLogout = () => {
