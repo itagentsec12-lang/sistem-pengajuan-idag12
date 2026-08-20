@@ -77,7 +77,10 @@ export default function HomePage() {
 
 const handleSingleLogin = (e) => {
     e.preventDefault();
-    const cleanEmail = emailInput.trim().toLowerCase();
+    
+    // Ambil nilai email (mengakomodasi nama variabel 'email' atau 'emailInput')
+    const rawEmail = typeof emailInput !== 'undefined' ? emailInput : (typeof email !== 'undefined' ? email : '');
+    const cleanEmail = rawEmail.trim().toLowerCase();
 
     // 1. Cek input kosong
     if (!cleanEmail) {
@@ -85,29 +88,46 @@ const handleSingleLogin = (e) => {
       return;
     }
 
-    // 2. Cek apakah daftar allowedEmails sudah berhasil dimuat dari Sheet
-    if (!allowedEmails || allowedEmails.length === 0) {
-      alert("Daftar email izin belum selesai dimuat dari Spreadsheet. Silakan tunggu 2-3 detik dan coba lagi.");
+    // 2. Ambil daftar email valid dari allowedEmails atau fallback ke submissions
+    let validList = [];
+    if (Array.isArray(allowedEmails) && allowedEmails.length > 0) {
+      validList = allowedEmails;
+    } else if (Array.isArray(submissions) && submissions.length > 0) {
+      validList = [...new Set(submissions.map(item => item.email || item.Email || item[1]))];
+    }
+
+    // 3. Jika daftar email belum ter-fetch dari server
+    if (validList.length === 0) {
+      alert("Sedang menghubungkan ke server. Silakan tunggu 2-3 detik atau klik 'Sync Data' lalu coba lagi.");
+      if (typeof fetchSheetsData === 'function') fetchSheetsData(true);
       return;
     }
 
-    // 3. Normalisasi seluruh daftar email dari spreadsheet ke huruf kecil
-    const formattedAllowedEmails = allowedEmails.map(email => 
-      String(email).trim().toLowerCase()
-    );
+    // 4. Normalisasi daftar email ke huruf kecil
+    const formattedAllowedEmails = validList
+      .filter(Boolean)
+      .map(item => {
+        if (typeof item === 'object') {
+          return String(item.email || item.Email || '').trim().toLowerCase();
+        }
+        return String(item).trim().toLowerCase();
+      });
 
-    // 4. CEK KEAMANAN: Apakah email input terdaftar di spreadsheet?
+    // 5. CEK KEAMANAN
     const isAllowed = formattedAllowedEmails.includes(cleanEmail);
 
     if (!isAllowed) {
-      alert(`Akses Ditolak!\nEmail "${cleanEmail}" tidak terdaftar dalam sistem/Spreadsheet.`);
-      return; // Hentikan login jika tidak cocok
+      alert(`Akses Ditolak!\nEmail "${cleanEmail}" tidak terdaftar di Spreadsheet.`);
+      return;
     }
 
-    // 5. Jika lolos validasi, izinkan masuk
+    // 6. Izinkan login
     localStorage.setItem('user_app_email', cleanEmail);
     setUserEmail(cleanEmail);
-    setEmailInput('');
+    
+    // Reset input email
+    if (typeof setEmailInput === 'function') setEmailInput('');
+    if (typeof setEmail === 'function') setEmail('');
   };
 
   const handleLogout = () => {
