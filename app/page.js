@@ -79,24 +79,32 @@ const handleSingleLogin = (e) => {
     e.preventDefault();
     const cleanEmail = emailInput.trim().toLowerCase();
 
-    // 1. Cek apakah email kosong
+    // 1. Cek input kosong
     if (!cleanEmail) {
       alert("Masukkan email terlebih dahulu!");
       return;
     }
 
-    // 2. CEK KEAMANAN: Validasi apakah email terdaftar di allowedEmails
-    // Memastikan allowedEmails memiliki data dan email input cocok
-    const isAllowed = allowedEmails.some(
-      (email) => email.trim().toLowerCase() === cleanEmail
-    );
-
-    if (!isAllowed) {
-      alert(`Akses Ditolak!\nEmail "${cleanEmail}" tidak terdaftar di Spreadsheet.`);
-      return; // Stop proses login jika email tidak cocok
+    // 2. Cek apakah daftar allowedEmails sudah berhasil dimuat dari Sheet
+    if (!allowedEmails || allowedEmails.length === 0) {
+      alert("Daftar email izin belum selesai dimuat dari Spreadsheet. Silakan tunggu 2-3 detik dan coba lagi.");
+      return;
     }
 
-    // 3. Jika email valid/terdaftar, izinkan login
+    // 3. Normalisasi seluruh daftar email dari spreadsheet ke huruf kecil
+    const formattedAllowedEmails = allowedEmails.map(email => 
+      String(email).trim().toLowerCase()
+    );
+
+    // 4. CEK KEAMANAN: Apakah email input terdaftar di spreadsheet?
+    const isAllowed = formattedAllowedEmails.includes(cleanEmail);
+
+    if (!isAllowed) {
+      alert(`Akses Ditolak!\nEmail "${cleanEmail}" tidak terdaftar dalam sistem/Spreadsheet.`);
+      return; // Hentikan login jika tidak cocok
+    }
+
+    // 5. Jika lolos validasi, izinkan masuk
     localStorage.setItem('user_app_email', cleanEmail);
     setUserEmail(cleanEmail);
     setEmailInput('');
