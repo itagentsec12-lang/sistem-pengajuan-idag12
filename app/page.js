@@ -62,6 +62,7 @@ export default function HomePage() {
 
       if (rawData.submissions) {
         setSubmissions(rawData.submissions);
+        if (rawData.allowedEmails) setAllowedEmails(rawData.allowedEmails);
         if (rawData.dropdowns && setDropdowns) {
           setDropdowns(rawData.dropdowns);
         }
@@ -86,38 +87,33 @@ const handleSingleLogin = (e) => {
       return;
     }
 
-    // 2. Daftar Email Cadangan (Masukkan email yang wajib diizinkan di sini jika Sheet lambat)
+    // 2. Fallback Email Admin / Superuser
     const fallbackEmails = [
       "helmiardifebriansyah26@gmail.com",
       "itagentsec12@gmail.com"
-      // Tambahkan email terdaftar lainnya di sini jika ada
     ];
 
-    // 3. Gabungkan email dari Google Sheets (allowedEmails / submissions) dengan daftar cadangan
+    // 3. Gabungkan Email Admin dengan allowedEmails hasil fetch Google Drive
     let masterList = [...fallbackEmails];
 
     if (Array.isArray(allowedEmails) && allowedEmails.length > 0) {
       masterList = masterList.concat(allowedEmails);
     }
-    if (Array.isArray(submissions) && submissions.length > 0) {
-      const subEmails = submissions.map(item => item.email || item.Email || item[1]);
-      masterList = masterList.concat(subEmails);
-    }
 
-    // 4. Bersihkan & samakan format seluruh email ke huruf kecil
+    // 4. Format ke huruf kecil
     const formattedAllowedEmails = masterList
       .filter(Boolean)
-      .map(item => typeof item === 'object' ? String(item.email || item.Email || '').trim().toLowerCase() : String(item).trim().toLowerCase());
+      .map(item => String(item).trim().toLowerCase());
 
-    // 5. VALiDASI KETAT: Cek apakah email yang diinput ada di daftar
+    // 5. VALIDASI KEAMANAN: Cek apakah email terdaftar
     const isAllowed = formattedAllowedEmails.includes(cleanEmail);
 
     if (!isAllowed) {
       alert(`AKSES DITOLAK!\nEmail "${cleanEmail}" TIDAK TERDAFTAR dalam sistem.`);
-      return; // Stop! Jangan beri akses masuk
+      return;
     }
 
-    // 6. Jika terdaftar, izinkan login
+    // 6. Login Berhasil
     localStorage.setItem('user_app_email', cleanEmail);
     setUserEmail(cleanEmail);
     setInputEmail('');
