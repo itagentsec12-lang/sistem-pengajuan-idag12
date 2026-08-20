@@ -78,46 +78,43 @@ export default function HomePage() {
 const handleSingleLogin = (e) => {
     e.preventDefault();
     
-    // Ambil input email
+    // 1. Ambil & bersihkan input email
     const cleanEmail = inputEmail ? inputEmail.trim().toLowerCase() : '';
 
-    // 1. Cek input kosong
     if (!cleanEmail) {
       alert("Masukkan email terlebih dahulu!");
       return;
     }
 
-    // 2. Ambil daftar email valid dari allowedEmails atau submissions
-    let validList = [];
+    // 2. Daftar Email Cadangan (Masukkan email yang wajib diizinkan di sini jika Sheet lambat)
+    const fallbackEmails = [
+      "helmiardifebriansyah26@gmail.com",
+      "itagentsec12@gmail.com"
+      // Tambahkan email terdaftar lainnya di sini jika ada
+    ];
+
+    // 3. Gabungkan email dari Google Sheets (allowedEmails / submissions) dengan daftar cadangan
+    let masterList = [...fallbackEmails];
+
     if (Array.isArray(allowedEmails) && allowedEmails.length > 0) {
-      validList = allowedEmails;
-    } else if (Array.isArray(submissions) && submissions.length > 0) {
-      validList = [...new Set(submissions.map(item => item.email || item.Email || item[1]))];
+      masterList = masterList.concat(allowedEmails);
+    }
+    if (Array.isArray(submissions) && submissions.length > 0) {
+      const subEmails = submissions.map(item => item.email || item.Email || item[1]);
+      masterList = masterList.concat(subEmails);
     }
 
-    // 3. Jika daftar email belum berhasil di-load dari server
-    if (validList.length === 0) {
-      alert("Sedang menghubungkan ke server/Google Sheets. Silakan tunggu 2-3 detik lalu coba lagi.");
-      if (typeof fetchSheetsData === 'function') fetchSheetsData(true);
-      return;
-    }
-
-    // 4. Normalisasi daftar email terdaftar
-    const formattedAllowedEmails = validList
+    // 4. Bersihkan & samakan format seluruh email ke huruf kecil
+    const formattedAllowedEmails = masterList
       .filter(Boolean)
-      .map(item => {
-        if (typeof item === 'object') {
-          return String(item.email || item.Email || '').trim().toLowerCase();
-        }
-        return String(item).trim().toLowerCase();
-      });
+      .map(item => typeof item === 'object' ? String(item.email || item.Email || '').trim().toLowerCase() : String(item).trim().toLowerCase());
 
-    // 5. CEK KEAMANAN: Wajib ada di daftar terdaftar
+    // 5. VALiDASI KETAT: Cek apakah email yang diinput ada di daftar
     const isAllowed = formattedAllowedEmails.includes(cleanEmail);
 
     if (!isAllowed) {
-      alert(`Akses Ditolak!\nEmail "${cleanEmail}" tidak terdaftar di Spreadsheet.`);
-      return; // Stop total, tidak bisa login
+      alert(`AKSES DITOLAK!\nEmail "${cleanEmail}" TIDAK TERDAFTAR dalam sistem.`);
+      return; // Stop! Jangan beri akses masuk
     }
 
     // 6. Jika terdaftar, izinkan login
