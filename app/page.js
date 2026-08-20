@@ -77,11 +77,29 @@ export default function HomePage() {
 
 const handleSingleLogin = (e) => {
     e.preventDefault();
-    if (inputEmail.trim()) {
-      localStorage.setItem('user_app_email', inputEmail.trim());
-      setUserEmail(inputEmail.trim());
-      fetchSheetsData();
+    const cleanEmail = emailInput.trim().toLowerCase();
+
+    // 1. Cek apakah email kosong
+    if (!cleanEmail) {
+      alert("Masukkan email terlebih dahulu!");
+      return;
     }
+
+    // 2. CEK KEAMANAN: Validasi apakah email terdaftar di allowedEmails
+    // Memastikan allowedEmails memiliki data dan email input cocok
+    const isAllowed = allowedEmails.some(
+      (email) => email.trim().toLowerCase() === cleanEmail
+    );
+
+    if (!isAllowed) {
+      alert(`Akses Ditolak!\nEmail "${cleanEmail}" tidak terdaftar di Spreadsheet.`);
+      return; // Stop proses login jika email tidak cocok
+    }
+
+    // 3. Jika email valid/terdaftar, izinkan login
+    localStorage.setItem('user_app_email', cleanEmail);
+    setUserEmail(cleanEmail);
+    setEmailInput('');
   };
 
   const handleLogout = () => {
