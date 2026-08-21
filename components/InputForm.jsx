@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getActiveSession } from '../lib/sessionCheck';
+import * as XLSX from 'xlsx';
 
 export default function InputForm({ userEmail, dropdowns, onDataSubmit }) {
   const [session, setSession] = useState({ isActive: false, sessionName: '', message: '' });
@@ -78,13 +79,22 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit }) {
       "REKOMENDER", "3603160301990001", "PIC A", "KOORD B", "SPV", "PENGAJUAN MASSAL"
     ];
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), sampleRow.join(",")].join("\n");
-    const link = document.createElement("a");
-    link.setAttribute("href", encodeURI(csvContent));
-    link.setAttribute("download", "Template_Pengajuan_ID.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    //const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), sampleRow.join(",")].join("\n");
+    //const link = document.createElement("a");
+    //link.setAttribute("href", encodeURI(csvContent));
+    //link.setAttribute("download", "Template_Pengajuan_ID.csv");
+    //document.body.appendChild(link);
+    //link.click();
+    //document.body.removeChild(link);
+
+    // Buat worksheet dari data header dan contoh baris
+      const worksheetData = [headers, sampleRow];
+      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+
+    // Unduh langsung sebagai file Excel (.xlsx)
+      XLSX.writeFile(workbook, "Template_Pengajuan_ID.xlsx");
   };
 
   const handleFileUpload = (e) => {
@@ -98,55 +108,82 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit }) {
 
     const reader = new FileReader();
     reader.onload = (evt) => {
-      const text = evt.target.result;
-      const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+      try {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
 
-      if (lines.length <= 1) {
-        alert("File CSV kosong.");
-        return;
-      }
+        // Ambil sheet pertama
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
 
-      const importedData = [];
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(",");
-        const ktpVal = (values[11] || '').trim(); // Index NIK berubah ke 11
+        // Konversi isi sheet Excel ke array 2 dimensi (tanpa mengubah angka NIK/NoHP ke scientific notation)
+        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: "" });
 
-        if (ktpVal.length !== 16) {
-          alert(`Baris ke-${i + 1} Gagal: Jumlah Angka NIK Tidak Berjumlah 16, yang terisi berjumlah (${ktpVal.length})`);
+        // Minimal harus ada 2 baris (1 baris header + minimal 1 baris data)
+        if (rows.length <= 1) {
+          alert("File Excel kosong atau hanya berisi header!");
           return;
         }
 
-        importedData.push({
-          rm: values[0] || '',
-          nama_dp: values[1] || '',
-          tlc: (values[2] || '').toUpperCase(),
-          kode_ke3: values[3] || '',
-          dp_ownerless: values[4] || '',
-          dp_mitra: values[5] || '',
-          no_rekening: values[6] || '',
-          pod_npwp: values[7] || '',
-          posisi: values[8] || 'ADMIN_BACKOFFICE',
-          paket_besar: values[9] || '',
-          nama_lengkap: (values[10] || '').toUpperCase(),
-          no_ktp: ktpVal,
-          nohp: values[12] || '',
-          email: values[13] || userEmail,
-          link_ktp: values[14] || '',
-          alamat: values[15] || '',
-          nama_merekomendasikan: values[16] || '',
-          nik_merekomendasikan: values[17] || '',
-          nama_pic: values[18] || '',
-          koordinator: values[19] || '',
-          posisi_merekomendasikan: values[20] || '',
-          keterangan: values[21] || ''
-        });
-      }
+        const importedData = [];
 
-      importedData.forEach(item => onDataSubmit(item));
-      alert(`Berhasil mengimpor ${importedData.length} data pengajuan!`);
+        // Loop mulai dari index 1 (melewati baris header)
+        for (let i = 1; i < rows.length; i++) {
+          const values = rows[i].map(val => String(val).trim());
+
+          // Abaikan jika seluruh kolom dalam baris ini kosong
+          if (values.every(v => v === "")) continue;
+
+          // Index NIK ada di baris ke-11
+          const ktpVal = values[11] ? String(values[11]).trim() : '';
+
+          if (ktpVal.length !== 16) {
+            alert(`Baris ke-${i + 1} Gagal: Jumlah Angka NIK Tidak Berjumlah 16, yang terisi berjumlah (${ktpVal.length})`);
+            return;
+          }
+
+          importedData.push({
+            rm: values[0] || '',
+            nama_dp: values[1] || '',
+            tlc: (values[2] || '').toUpperCase(),
+            kode_ke3: values[3] || '',
+            dp_ownerless: values[4] || '',
+            dp_mitra: values[5] || '',
+            no_rekening: values[6] || '',
+            pod_npwp: values[7] || '',
+            posisi: values[8] || 'ADMIN_BACKOFFICE',
+            paket_besar: values[9] || '',
+            nama_lengkap: (values[10] || '').toUpperCase(),
+            no_ktp: ktpVal,
+            nohp: values[12] || '',
+            email: values[13] || userEmail,
+            link_ktp: values[14] || '',
+            alamat: values[15] || '',
+            nama_merekomendasikan: values[16] || '',
+            nik_merekomendasikan: values[17] || '',
+            nama_pic: values[18] || '',
+            koordinator: values[19] || '',
+            posisi_merekomendasikan: values[20] || '',
+            keterangan: values[21] || ''
+          });
+        }
+
+        if (importedData.length === 0) {
+          alert("Tidak ada data valid yang bisa diimpor.");
+          return;
+        }
+
+        importedData.forEach(item => onDataSubmit(item));
+        alert(`Berhasil mengimpor ${importedData.length} data pengajuan!`);
+
+      } catch (err) {
+        console.error("Gagal membaca file Excel:", err);
+        alert("Gagal membaca file Excel. Pastikan format file .xlsx / .xls valid.");
+      }
     };
 
-    reader.readAsText(file);
+    // Menggunakan ArrayBuffer untuk kompatibilitas membaca Excel yang stabil
+    reader.readAsArrayBuffer(file);
   };
 
   const handleSubmitManual = (e) => {
@@ -183,16 +220,16 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit }) {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
           <div>
             <h3 className="text-base font-bold text-blue-900">📊 Upload Pengajuan Massal (&gt; 5 Data)</h3>
-            <p className="text-xs text-blue-700 mt-1">Gunakan template CSV 22 kolom.</p>
+            <p className="text-xs text-blue-700 mt-1">Gunakan template Excel</p>
           </div>
           <button onClick={downloadTemplate} type="button" className="px-4 py-2 bg-white text-blue-700 border border-blue-300 rounded-lg text-xs font-semibold shadow-sm hover:bg-blue-50">
-            📥 Download Template CSV
+            📥 Download Template Excel
           </button>
         </div>
 
         <div className="bg-white p-4 rounded-lg border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
           <input type="file" accept=".csv" onChange={handleFileUpload} disabled={!session.isActive} className="text-xs text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700" />
-          <span className="text-[11px] text-gray-500 italic">*Format CSV harus sesuai template</span>
+          <span className="text-[11px] text-gray-500 italic">*Format Excel (.xlsx / .xls) harus sesuai template</span>
         </div>
       </div>
 
