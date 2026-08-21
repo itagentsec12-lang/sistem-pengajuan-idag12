@@ -43,7 +43,7 @@ export default function HomePage() {
   const fetchInitialConfig = async () => {
     try {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('PASTE_URL')) return;
-      const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getInitData`);
+      const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getInitData`, { cache: 'no-store' });
       const data = await res.json();
       if (data.status === 'success') {
         setAllowedEmails(data.allowedEmails || []);
@@ -57,7 +57,7 @@ export default function HomePage() {
   const fetchSheetsData = async (isInitial = false) => {
     if (isInitial) setLoading(true);
     try {
-      const response = await fetch(GOOGLE_SCRIPT_URL);
+      const response = await fetch(GOOGLE_SCRIPT_URL, { cache: 'no-store' });
       const rawData = await response.json();
 
       if (rawData.submissions) {
@@ -230,10 +230,10 @@ const handleFileUpload = (e) => {
             redirect: 'follow',
           });
         }
-        alert("Semua data CSV berhasil diimport!");
+        alert("Semua data xlsx berhasil diimport!");
         fetchSheetsData();
       } catch (err) {
-        alert("Gagal mengunggah beberapa atau seluruh data CSV.");
+        alert("Gagal mengunggah beberapa atau seluruh data xlxs.");
       } finally {
         setLoading(false);
       }
