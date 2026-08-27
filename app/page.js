@@ -135,7 +135,10 @@ const handleSingleLogin = (e) => {
         headers: {
           'Content-Type': 'text/plain;charset=utf-8',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          createdBy: userEmail
+        }),
         redirect: 'follow', // <-- TAMBAHKAN BARIS INI
       });
 
