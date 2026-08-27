@@ -128,6 +128,10 @@ const handleSingleLogin = (e) => {
   // Fungsi untuk menangani submission dari Form Input
   const handleDataSubmit = async (formData) => {
     setLoading(true);
+
+    // Mengambil userEmail dari state atau localStorage dengan kunci 'user_app_email'
+  const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
+
     try {
       // BAGIAN FETCH DENGAN REDIRECT: 'FOLLOW'
       const response = await fetch(GOOGLE_SCRIPT_URL, {
@@ -225,13 +229,14 @@ const handleFileUpload = (e) => {
     if (confirm(`Apakah Anda yakin ingin mengunggah ${parsedData.length} data pengajuan?`)) {
       setLoading(true);
       try {
+        const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
         for (const item of parsedData) {
           await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({
               ...item,
-              createdBy: userEmail
+              createdBy: activeEmail
             }),
             redirect: 'follow',
           });
