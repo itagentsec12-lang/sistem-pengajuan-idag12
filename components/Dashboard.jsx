@@ -22,9 +22,15 @@ export default function Dashboard({ submissions = [], userEmail = '' }) {
 
   // 1. Filter Akses Data (Admin melihat semua, User biasa hanya data miliknya sendiri)
   const accessibleSubmissions = submissions.filter((item) => {
-    if (isAdmin) return true; // Super User bisa lihat SEMUA
-    return (item.email || '').toLowerCase().trim() === userEmail?.toLowerCase().trim(); // User biasa hanya data sendiri
-  });
+  if (isAdmin) return true; // Super User bisa lihat SEMUA
+  
+  // 1. Simpan nilai ke variabel dulu
+  const pembuatData = (item.created_by || item.email || '').toLowerCase().trim();
+  const emailLogin = (userEmail || '').toLowerCase().trim();
+  
+  // 2. Return tetap ada di sini!
+  return pembuatData === emailLogin; 
+});
 
   // 2. Filter Pencarian dan Tanggal Sheet dari data yang memiliki akses
   const filteredData = accessibleSubmissions.filter((item) => {

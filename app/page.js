@@ -226,14 +226,18 @@ const handleFileUpload = (e) => {
           await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(item),
+            body: JSON.stringify({
+              ...item,
+              createdBy: userEmail
+            }),
             redirect: 'follow',
           });
         }
         alert("Semua data xlsx berhasil diimport!");
         fetchSheetsData();
-      } catch (err) {
-        alert("Gagal mengunggah beberapa atau seluruh data xlxs.");
+      } catch (error) {
+        console.error("Error uploading data:", error);
+        alert("Gagal mengunggah data!");
       } finally {
         setLoading(false);
       }
