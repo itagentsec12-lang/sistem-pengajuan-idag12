@@ -54,46 +54,61 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit, initialD
     return () => clearInterval(interval);
   }, []);
 
+  // 🛠️ Helper untuk mencocokkan string dari initialData ke opsi dropdown (Mengabaikan Spasi & Case)
+  const matchOptionValue = (rawValue, optionsList = []) => {
+    if (!rawValue) return '';
+    const cleanVal = String(rawValue).trim().toLowerCase();
+    const matched = optionsList.find(opt => String(opt).trim().toLowerCase() === cleanVal);
+    return matched ? String(matched).trim() : String(rawValue).trim();
+  };
+
   // Update formData ketika initialData (mode edit) atau userEmail berubah
   useEffect(() => {
     if (initialData) {
       const getVal = (keys) => {
         for (const key of keys) {
-          if (initialData[key] !== undefined && initialData[key] !== null) {
+          if (initialData[key] !== undefined && initialData[key] !== null && String(initialData[key]).trim() !== '') {
             return String(initialData[key]).trim();
           }
         }
         return '';
       };
 
+      const rawRm = getVal(['rm', 'RM', 'RM (Regional Manager)', 'rm_name']);
+      const rawDp = getVal(['nama_dp', 'NAMA DP / DC', 'NAMA DP/DC', 'NAMA_DP', 'dp']);
+      const rawOwnerless = getVal(['dp_ownerless', 'DP OWNERLESS VENDOR', 'DP_OWNERLESS', 'ownerless']);
+      const rawMitra = getVal(['dp_mitra', 'DP MITRA VENDOR', 'DP_MITRA', 'mitra']);
+      const rawPosisi = getVal(['posisi', 'POSISI', 'position']);
+      const rawPaket = getVal(['paket_besar', 'ISI JIKA PAKET BESAR', 'PAKET_BESAR']);
+
       setFormData({
-        rm: getVal(['rm', 'RM (Regional Manager)', 'RM']),
-        nama_dp: getVal(['nama_dp', 'NAMA DP / DC', 'NAMA DP/DC']),
-        tlc: getVal(['tlc', 'KODE TLC (Kapital)', 'KODE TLC']),
-        kode_ke3: getVal(['kode_ke3', 'KODE KE 3']),
-        dp_ownerless: getVal(['dp_ownerless', 'DP OWNERLESS VENDOR']),
-        dp_mitra: getVal(['dp_mitra', 'DP MITRA VENDOR']),
-        no_rekening: getVal(['no_rekening', 'NO REKENING']),
-        pod_npwp: getVal(['pod_npwp', 'POD NPWP']),
-        posisi: getVal(['posisi', 'POSISI']) || 'ADMIN BACKOFFICE',
-        paket_besar: getVal(['paket_besar', 'ISI JIKA PAKET BESAR']),
-        nama_lengkap: getVal(['nama_lengkap', 'NAMA LENGKAP (Kapital)', 'NAMA LENGKAP']),
-        no_ktp: getVal(['no_ktp', 'NO KTP (16 Angka)', 'NO KTP']),
-        nohp: getVal(['nohp', 'NO HP']),
+        rm: matchOptionValue(rawRm, rmList),
+        nama_dp: matchOptionValue(rawDp, dpList),
+        tlc: getVal(['tlc', 'KODE TLC (Kapital)', 'KODE TLC', 'KODE_TLC']),
+        kode_ke3: getVal(['kode_ke3', 'KODE KE 3', 'KODE_KE3']),
+        dp_ownerless: matchOptionValue(rawOwnerless, ownerlessList),
+        dp_mitra: matchOptionValue(rawMitra, mitraList),
+        no_rekening: getVal(['no_rekening', 'NO REKENING', 'NO_REKENING']),
+        pod_npwp: getVal(['pod_npwp', 'POD NPWP', 'POD_NPWP']),
+        posisi: matchOptionValue(rawPosisi, posisiOptions) || 'ADMIN BACKOFFICE',
+        paket_besar: matchOptionValue(rawPaket, ['TR', 'MTR']),
+        nama_lengkap: getVal(['nama_lengkap', 'NAMA LENGKAP (Kapital)', 'NAMA LENGKAP', 'NAMA_LENGKAP']),
+        no_ktp: getVal(['no_ktp', 'NO KTP (16 Angka)', 'NO KTP', 'NO_KTP', 'nik']),
+        nohp: getVal(['nohp', 'NO HP', 'NO_HP', 'no_telepon']),
         email: getVal(['email', 'EMAIL']) || userEmail || '',
-        link_ktp: getVal(['link_ktp', 'LINK FOTO KTP (DRIVE)']),
+        link_ktp: getVal(['link_ktp', 'LINK FOTO KTP (DRIVE)', 'LINK_FOTO_KTP', 'link_foto_ktp']),
         alamat: getVal(['alamat', 'ALAMAT']),
-        nama_merekomendasikan: getVal(['nama_merekomendasikan', 'NAMA YANG MEREKOMENDASIKAN']),
-        nik_merekomendasikan: getVal(['nik_merekomendasikan', 'NIK KTP YANG MEREKOMENDASIKAN']),
-        nama_pic: getVal(['nama_pic', 'NAMA PIC']),
+        nama_merekomendasikan: getVal(['nama_merekomendasikan', 'NAMA YANG MEREKOMENDASIKAN', 'NAMA_MEREKOMENDASIKAN']),
+        nik_merekomendasikan: getVal(['nik_merekomendasikan', 'NIK KTP YANG MEREKOMENDASIKAN', 'NIK_MEREKOMENDASIKAN']),
+        nama_pic: getVal(['nama_pic', 'NAMA PIC', 'NAMA_PIC']),
         koordinator: getVal(['koordinator', 'KOORDINATOR']),
-        posisi_merekomendasikan: getVal(['posisi_merekomendasikan', 'POSISI YANG MEREKOMENDASIKAN']),
+        posisi_merekomendasikan: getVal(['posisi_merekomendasikan', 'POSISI YANG MEREKOMENDASIKAN', 'POSISI_MEREKOMENDASIKAN']),
         keterangan: getVal(['keterangan', 'KETERANGAN']),
       });
     } else {
       setFormData(initialForm);
     }
-  }, [initialData, userEmail]);
+  }, [initialData, userEmail, rmList, dpList, ownerlessList, mitraList]);
 
   const handleChange = (e) => {
     let { name, value } = e.target;
