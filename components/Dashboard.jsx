@@ -164,7 +164,7 @@ export default function Dashboard({ submissions = [], userEmail = '', onUpdateSu
                       {/* Tombol Edit (Hanya Aktif jika Status HR & IT Masih PENDING) */}
                       {(item.check_hr || '').toUpperCase() === 'PENDING' && (item.check_it || '').toUpperCase() === 'PENDING' ? (
                         <button
-                          onClick={() => onEdit(item)}
+                          onClick={() => setSelectedEdit(item)}
                           className="px-3 py-1 bg-amber-50 text-amber-600 border border-amber-200 rounded-lg font-semibold hover:bg-amber-100 transition"
                         >
                           Edit
@@ -257,7 +257,8 @@ export default function Dashboard({ submissions = [], userEmail = '', onUpdateSu
               onDataSubmit={(updatedFormData) => {
                 onUpdateSubmit({ 
                   ...updatedFormData, 
-                  rowIndex: selectedEdit.rowIndex 
+                  row: selectedEdit.row || selectedEdit.rowIndex,
+                  sheetName: selectedEdit.sheetName 
                 });
                 setSelectedEdit(null);
               }} 
