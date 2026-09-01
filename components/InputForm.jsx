@@ -49,26 +49,33 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit, initialD
   }, []);
 
   useEffect(() => {
-    if (initialData) {
-      setFormData({
-        rm: initialData.rm || '',
-        nama_dp: initialData.nama_dp || '',
-        tlc: initialData.tlc || '',
-        kode_ke3: initialData.kode_ke3 || '',
-        dp_ownerless: initialData.dp_ownerless || '',
-        dp_mitra: initialData.dp_mitra || '',
-        no_rekening: initialData.no_rekening || '',
-        pod_npwp: initialData.pod_npwp || '',
-        posisi: initialData.posisi || '',
-        paket_besar: initialData.paket_besar || '',
-        nama_lengkap: initialData.nama_lengkap || '',
-        no_ktp: initialData.no_ktp || '',
-        nohp: initialData.nohp || '',
-        alamat: initialData.alamat || '',
-        keterangan: initialData.keterangan || '',
-      });
-    }
-  }, [initialData]);
+  if (initialData) {
+    setFormData({
+      rm: initialData.rm || initialData['RM (Regional Manager)'] || initialData['RM'] || '',
+      nama_dp: initialData.nama_dp || initialData['NAMA DP / DC'] || initialData['NAMA DP/DC'] || '',
+      tlc: initialData.tlc || initialData['KODE TLC (Kapital)'] || initialData['KODE TLC'] || '',
+      kode_ke3: initialData.kode_ke3 || initialData['KODE KE 3'] || '',
+      dp_ownerless: initialData.dp_ownerless || initialData['DP OWNERLESS VENDOR'] || '',
+      dp_mitra: initialData.dp_mitra || initialData['DP MITRA VENDOR'] || '',
+      no_rekening: initialData.no_rekening || initialData['NO REKENING'] || '',
+      pod_npwp: initialData.pod_npwp || initialData['POD NPWP'] || '',
+      posisi: initialData.posisi || initialData['POSISI'] || 'ADMIN_BACKOFFICE',
+      paket_besar: initialData.paket_besar || initialData['ISI JIKA PAKET BESAR'] || '',
+      nama_lengkap: initialData.nama_lengkap || initialData['NAMA LENGKAP (Kapital)'] || initialData['NAMA LENGKAP'] || '',
+      no_ktp: initialData.no_ktp || initialData['NO KTP (16 Angka)'] || initialData['NO KTP'] || '',
+      nohp: initialData.nohp || initialData['NO HP'] || '',
+      email: initialData.email || initialData['EMAIL'] || userEmail || '',
+      link_ktp: initialData.link_ktp || initialData['LINK FOTO KTP (DRIVE)'] || '',
+      alamat: initialData.alamat || initialData['ALAMAT'] || '',
+      nama_merekomendasikan: initialData.nama_merekomendasikan || initialData['NAMA YANG MEREKOMENDASIKAN'] || '',
+      nik_merekomendasikan: initialData.nik_merekomendasikan || initialData['NIK KTP YANG MEREKOMENDASIKAN'] || '',
+      nama_pic: initialData.nama_pic || initialData['NAMA PIC'] || '',
+      koordinator: initialData.koordinator || initialData['KOORDINATOR'] || '',
+      posisi_merekomendasikan: initialData.posisi_merekomendasikan || initialData['POSISI YANG MEREKOMENDASIKAN'] || '',
+      keterangan: initialData.keterangan || initialData['KETERANGAN'] || ''
+    });
+  }
+}, [initialData, userEmail]);
 
   const handleChange = (e) => {
     let { name, value } = e.target;
