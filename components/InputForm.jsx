@@ -42,10 +42,10 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit, initialD
   ];
 
   // Ambil opsi dropdown dengan aman (mencakup kemungkinan nama properti yang berbeda)
-  const rmList = dropdowns?.rm || dropdowns?.rmOptions || [];
-  const dpList = dropdowns?.nama_dp || dropdowns?.dp || [];
-  const ownerlessList = dropdowns?.dp_ownerless || dropdowns?.ownerless || [];
-  const mitraList = dropdowns?.dp_mitra || dropdowns?.mitra || [];
+  const rmList = dropdowns?.rm || dropdowns?.RM || dropdowns?.rmOptions || [];
+  const dpList = dropdowns?.nama_dp || dropdowns?.['NAMA DP / DC'] || dropdowns?.dp || [];
+  const ownerlessList = dropdowns?.dp_ownerless || dropdowns?.['DP OWNERLESS VENDOR'] || dropdowns?.ownerless || [];
+  const mitraList = dropdowns?.dp_mitra || dropdowns?.['DP MITRA VENDOR'] || dropdowns?.mitra || [];
 
   useEffect(() => {
     const checkSession = () => setSession(getActiveSession());

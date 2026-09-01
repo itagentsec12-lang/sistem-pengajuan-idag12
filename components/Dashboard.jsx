@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import InputForm from './InputForm';
 
-export default function Dashboard({ submissions = [], userEmail = '', onUpdateSubmit }) {
+export default function Dashboard({ submissions = [], userEmail = '', onUpdateSubmit, dropdowns }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSheet, setSelectedSheet] = useState('ALL');
   const [selectedDetail, setSelectedDetail] = useState(null);
@@ -252,17 +252,19 @@ export default function Dashboard({ submissions = [], userEmail = '', onUpdateSu
               </button>
             </div>
 
-            <InputForm 
-              initialData={selectedEdit} 
-              onDataSubmit={(updatedFormData) => {
-                onUpdateSubmit({ 
-                  ...updatedFormData, 
-                  row: selectedEdit.row || selectedEdit.rowIndex,
-                  sheetName: selectedEdit.sheetName 
-                });
-                setSelectedEdit(null);
-              }} 
-            />
+              <InputForm 
+                userEmail={userEmail}
+                dropdowns={dropdowns} // 👈 Kirim data dropdowns dari parent/props Dashboard!
+                initialData={selectedEdit} 
+                onDataSubmit={(updatedFormData) => {
+                  onUpdateSubmit({ 
+                    ...updatedFormData, 
+                    row: selectedEdit.row || selectedEdit.rowIndex,
+                    sheetName: selectedEdit.sheetName 
+                  });
+                  setSelectedEdit(null);
+                }} 
+              />
           </div>
         </div>
       )}
