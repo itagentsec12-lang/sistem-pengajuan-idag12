@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { getActiveSession } from '../lib/sessionCheck';
 import * as XLSX from 'xlsx';
 
-export default function InputForm({ userEmail, dropdowns, onDataSubmit }) {
+export default function InputForm({ userEmail, dropdowns, onDataSubmit, initialData = null }) {
   const [session, setSession] = useState({ isActive: false, sessionName: '', message: '' });
 
   const initialForm = {
@@ -47,6 +47,28 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit }) {
     const interval = setInterval(checkSession, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        rm: initialData.rm || '',
+        nama_dp: initialData.nama_dp || '',
+        tlc: initialData.tlc || '',
+        kode_ke3: initialData.kode_ke3 || '',
+        dp_ownerless: initialData.dp_ownerless || '',
+        dp_mitra: initialData.dp_mitra || '',
+        no_rekening: initialData.no_rekening || '',
+        pod_npwp: initialData.pod_npwp || '',
+        posisi: initialData.posisi || '',
+        paket_besar: initialData.paket_besar || '',
+        nama_lengkap: initialData.nama_lengkap || '',
+        no_ktp: initialData.no_ktp || '',
+        nohp: initialData.nohp || '',
+        alamat: initialData.alamat || '',
+        keterangan: initialData.keterangan || '',
+      });
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
     let { name, value } = e.target;

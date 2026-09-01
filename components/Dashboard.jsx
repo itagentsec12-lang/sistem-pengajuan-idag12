@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import InputForm from './InputForm';
 
-export default function Dashboard({ submissions = [], userEmail = '' }) {
+export default function Dashboard({ submissions = [], userEmail = '', onUpdateSubmit }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSheet, setSelectedSheet] = useState('ALL');
   const [selectedDetail, setSelectedDetail] = useState(null);
+  const [selectedEdit, setSelectedEdit] = useState(null);
 
   // Daftar Email Admin / Super User yang BISA melihat semua data
   const adminEmails = [
@@ -158,7 +160,24 @@ export default function Dashboard({ submissions = [], userEmail = '' }) {
                       </span>
                     </td>
 
-                    <td className="p-3 text-center">
+                    <td className="p-3 text-center flex justify-center gap-1.5">
+                      {/* Tombol Edit (Hanya Aktif jika Status HR & IT Masih PENDING) */}
+                      {(item.check_hr || '').toUpperCase() === 'PENDING' && (item.check_it || '').toUpperCase() === 'PENDING' ? (
+                        <button
+                          onClick={() => onEdit(item)}
+                          className="px-3 py-1 bg-amber-50 text-amber-600 border border-amber-200 rounded-lg font-semibold hover:bg-amber-100 transition"
+                        >
+                          Edit
+                        </button>
+                      ) : (
+                        <button
+                            disabled
+                            title="Data sudah diproses, tidak dapat diubah"
+                            className="px-3 py-1 bg-gray-100 text-gray-400 border border-gray-200 rounded-lg font-semibold cursor-not-allowed"
+                        >
+                          Edit
+                        </button>
+                      )}
                       <button
                         onClick={() => setSelectedDetail(item)}
                         className="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg font-semibold text-[11px] hover:bg-blue-100"
@@ -213,6 +232,36 @@ export default function Dashboard({ submissions = [], userEmail = '' }) {
                 Tutup
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Modal Form Edit */}
+      {selectedEdit && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
+            <div className="flex justify-between items-center border-b pb-3 mb-4">
+              <div>
+                <h3 className="font-bold text-lg text-gray-800">Edit Data Pengajuan ID</h3>
+                <p className="text-xs text-gray-500">Perbarui informasi pengajuan sebelum diproses HR/IT</p>
+              </div>
+              <button 
+                onClick={() => setSelectedEdit(null)} 
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+              >
+                &times;
+              </button>
+            </div>
+
+            <InputForm 
+              initialData={selectedEdit} 
+              onDataSubmit={(updatedFormData) => {
+                onUpdateSubmit({ 
+                  ...updatedFormData, 
+                  rowIndex: selectedEdit.rowIndex 
+                });
+                setSelectedEdit(null);
+              }} 
+            />
           </div>
         </div>
       )}

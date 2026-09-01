@@ -15,6 +15,7 @@ export default function HomePage() {
   const [dropdowns, setDropdowns] = useState({ rm: [], dp: [], ownerless: [], mitra: [] });
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(120);
+  const [selectedSheet, setSelectedSheet] = useState('');
 
   useEffect(() => {
     fetchInitialConfig();
@@ -130,7 +131,7 @@ const handleSingleLogin = (e) => {
     setLoading(true);
 
     // Mengambil userEmail dari state atau localStorage dengan kunci 'user_app_email'
-  const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
+    const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
 
     try {
       // BAGIAN FETCH DENGAN REDIRECT: 'FOLLOW'
@@ -141,7 +142,7 @@ const handleSingleLogin = (e) => {
         },
         body: JSON.stringify({
           ...formData,
-          createdBy: userEmail
+          createdBy: activeEmail
         }),
         redirect: 'follow', // <-- TAMBAHKAN BARIS INI
       });
@@ -161,6 +162,39 @@ const handleSingleLogin = (e) => {
       setLoading(false);
     }
   };
+
+  // Di dalam page.js
+const handleUpdateSubmit = async (updatedFormData) => {
+  setLoading(true);
+  const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
+
+  try {
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        ...updatedFormData,
+        action: 'update',
+        sheetName: selectedSheet, // Sheet tanggal yang sedang aktif
+        createdBy: activeEmail
+      }),
+      redirect: 'follow',
+    });
+
+    const result = await response.json();
+    if (result.status === 'success') {
+      alert('Data berhasil diperbarui!');
+      fetchSheetsData(); // Refresh data tabel dari server
+    } else {
+      alert('Gagal memperbarui data: ' + result.message);
+    }
+  } catch (error) {
+    console.error('Error update:', error);
+    alert('Terjadi kesalahan saat memperbarui data.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   // 1. Download Template CSV Sesuai Kolom Baru
 const handleDownloadTemplate = () => {
@@ -361,7 +395,9 @@ const handleFileUpload = (e) => {
         ) : (
           <Dashboard 
             submissions={submissions}
-            userEmail={userEmail} />
+            userEmail={userEmail}
+            onUpdateSubmit={handleUpdateSubmit}
+            onSelectSheet={setSelectedSheet} />
         )}
       </div>
     </main>
