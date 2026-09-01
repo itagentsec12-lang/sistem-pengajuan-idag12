@@ -43,9 +43,9 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit, initialD
 
   // Ambil opsi dropdown dengan aman (mencakup kemungkinan nama properti yang berbeda)
   const rmList = dropdowns?.rm || dropdowns?.RM || dropdowns?.rmOptions || [];
-  const dpList = dropdowns?.nama_dp || dropdowns?.['NAMA DP / DC'] || dropdowns?.dp || [];
-  const ownerlessList = dropdowns?.dp_ownerless || dropdowns?.['DP OWNERLESS VENDOR'] || dropdowns?.ownerless || [];
-  const mitraList = dropdowns?.dp_mitra || dropdowns?.['DP MITRA VENDOR'] || dropdowns?.mitra || [];
+  const dpList = dropdowns?.nama_dp || dropdowns?.dp || dropdowns?.['NAMA DP / DC'] || [];
+  const ownerlessList = dropdowns?.dp_ownerless || dropdowns?.ownerless || dropdowns?.['DP OWNERLESS VENDOR'] || [];
+  const mitraList = dropdowns?.dp_mitra || dropdowns?.mitra || dropdowns?.['DP MITRA VENDOR'] || [];
 
   useEffect(() => {
     const checkSession = () => setSession(getActiveSession());
@@ -108,7 +108,7 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit, initialD
     } else {
       setFormData(initialForm);
     }
-  }, [initialData, userEmail, rmList, dpList, ownerlessList, mitraList]);
+  }, [initialData, userEmail, rmList, dpList, ownerlessList, mitraList, dropdowns]);
 
   const handleChange = (e) => {
     let { name, value } = e.target;
