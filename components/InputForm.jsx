@@ -238,22 +238,25 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit, initialD
         <span className="text-xs font-bold px-3 py-1 bg-white rounded-md shadow-sm border">{session.sessionName}</span>
       </div>
 
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-          <div>
-            <h3 className="text-base font-bold text-blue-900">📊 Upload Pengajuan Massal (&gt; 5 Data)</h3>
-            <p className="text-xs text-blue-700 mt-1">Gunakan template Excel</p>
-          </div>
-          <button onClick={downloadTemplate} type="button" className="px-4 py-2 bg-white text-blue-700 border border-blue-300 rounded-lg text-xs font-semibold shadow-sm hover:bg-blue-50">
-            📥 Download Template Excel
-          </button>
-        </div>
+      {/* Sembunyikan bagian upload massal jika dalam mode edit */}
+        {!initialData && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+              <div>
+                <h3 className="text-base font-bold text-blue-900">📊 Upload Pengajuan Massal (&gt; 5 Data)</h3>
+                <p className="text-xs text-blue-700 mt-1">Gunakan template Excel</p>
+              </div>
+              <button onClick={downloadTemplate} type="button" className="px-4 py-2 bg-white text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold hover:bg-blue-50 shadow-sm transition">
+                📥 Download Template Excel
+              </button>
+            </div>
 
-        <div className="bg-white p-4 rounded-lg border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <input type="file" accept=".csv" onChange={handleFileUpload} disabled={!session.isActive} className="text-xs text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700" />
-          <span className="text-[11px] text-gray-500 italic">*Format Excel (.xlsx / .xls) harus sesuai template</span>
-        </div>
-      </div>
+            <div className="bg-white p-4 rounded-lg border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <input type="file" accept=".csv" onChange={handleFileUpload} disabled={!session.isActive} className="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 disabled:opacity-50" />
+              <span className="text-[11px] text-gray-500 italic">*Format Excel (.xlsx / .xls) harus sesuai template</span>
+            </div>
+          </div>
+        )}
 
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -432,7 +435,9 @@ export default function InputForm({ userEmail, dropdowns, onDataSubmit, initialD
               disabled={!session.isActive}
               className={`px-8 py-3 rounded-lg text-white font-semibold text-sm transition shadow-md ${session.isActive ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
             >
-              {session.isActive ? '🚀 Kirim Pengajuan Manual' : '🔒 Form Input Terkunci'}
+              {session.isActive 
+                  ? (initialData ? '🚀 Kirim Pengajuan' : '🚀 Kirim Pengajuan Manual') 
+                        : '🔒 Form Input Terkunci'}
             </button>
           </div>
         </form>
