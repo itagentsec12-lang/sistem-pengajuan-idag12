@@ -15,28 +15,26 @@ export default function HomePage() {
   const [dropdowns, setDropdowns] = useState({ rm: [], dp: [], ownerless: [], mitra: [] });
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(120);
-  const [selectedSheet, setSelectedSheet] = useState('');
 
   useEffect(() => {
     fetchInitialConfig();
     const savedEmail = localStorage.getItem('user_app_email');
     if (savedEmail) {
       setUserEmail(savedEmail);
-      fetchSheetsData(true); // Fetch awal saat halaman pertama kali dibuka
+      fetchSheetsData(true);
     }
 
     const timerId = setInterval(() => {
       setCountdown((prevCount) => {
         if (prevCount <= 1) {
-          // Jika hitungan mencapai 0, trigger refresh data dan reset detik ke 120
           if (localStorage.getItem('user_app_email')) {
             fetchSheetsData(false);
           }
-          return 120; // Reset ke 2 menit lagi
+          return 120;
         }
         return prevCount - 1;
       });
-    }, 1000); // Jalan setiap 1 detik
+    }, 1000);
 
     return () => clearInterval(timerId);
   }, []);
@@ -48,7 +46,7 @@ export default function HomePage() {
       const data = await res.json();
       if (data.status === 'success') {
         setAllowedEmails(data.allowedEmails || []);
-        setDropdowns(data.dropdowns || { dp: [], ownerless: [], mitra: [], rm: [] });
+        if (data.dropdowns) setDropdowns(data.dropdowns);
       }
     } catch (err) {
       console.error("Gagal memuat konfigurasi awal:", err);
@@ -64,9 +62,7 @@ export default function HomePage() {
       if (rawData.submissions) {
         setSubmissions(rawData.submissions);
         if (rawData.allowedEmails) setAllowedEmails(rawData.allowedEmails);
-        if (rawData.dropdowns && setDropdowns) {
-          setDropdowns(rawData.dropdowns);
-        }
+        if (rawData.dropdowns) setDropdowns(rawData.dropdowns);
       } else if (Array.isArray(rawData)) {
         setSubmissions(rawData);
       }
@@ -77,47 +73,37 @@ export default function HomePage() {
     }
   };
 
-const handleSingleLogin = (e) => {
+  const handleSingleLogin = (e) => {
     e.preventDefault();
-    
-    // 1. Ambil & bersihkan input email
     const cleanEmail = inputEmail ? inputEmail.trim().toLowerCase() : '';
-
     if (!cleanEmail) {
       alert("Masukkan email terlebih dahulu!");
       return;
     }
 
-    // 2. Fallback Email Admin / Superuser
     const fallbackEmails = [
       "helmiardifebriansyah26@gmail.com",
       "itagentsec12@gmail.com"
     ];
 
-    // 3. Gabungkan Email Admin dengan allowedEmails hasil fetch Google Drive
     let masterList = [...fallbackEmails];
-
     if (Array.isArray(allowedEmails) && allowedEmails.length > 0) {
       masterList = masterList.concat(allowedEmails);
     }
 
-    // 4. Format ke huruf kecil
     const formattedAllowedEmails = masterList
       .filter(Boolean)
       .map(item => String(item).trim().toLowerCase());
 
-    // 5. VALIDASI KEAMANAN: Cek apakah email terdaftar
-    const isAllowed = formattedAllowedEmails.includes(cleanEmail);
-
-    if (!isAllowed) {
+    if (!formattedAllowedEmails.includes(cleanEmail)) {
       alert(`AKSES DITOLAK!\nEmail "${cleanEmail}" TIDAK TERDAFTAR dalam sistem.`);
       return;
     }
 
-    // 6. Login Berhasil
     localStorage.setItem('user_app_email', cleanEmail);
     setUserEmail(cleanEmail);
     setInputEmail('');
+    fetchSheetsData(true);
   };
 
   const handleLogout = () => {
@@ -126,34 +112,27 @@ const handleSingleLogin = (e) => {
     setSubmissions([]);
   };
 
-  // Fungsi untuk menangani submission dari Form Input
   const handleDataSubmit = async (formData) => {
     setLoading(true);
-
-    // Mengambil userEmail dari state atau localStorage dengan kunci 'user_app_email'
     const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
 
     try {
-      // BAGIAN FETCH DENGAN REDIRECT: 'FOLLOW'
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8',
-        },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           ...formData,
           createdBy: activeEmail
         }),
-        redirect: 'follow', // <-- TAMBAHKAN BARIS INI
+        redirect: 'follow',
       });
 
       const result = await response.json();
-
       if (result.status === 'success') {
         alert('Data berhasil disimpan!');
-        fetchSheetsData(); // Refresh data tabel
+        fetchSheetsData();
       } else {
-        alert('Gagal menyimpan data: ' + result.error);
+        alert('Gagal menyimpan data: ' + (result.message || result.error));
       }
     } catch (error) {
       console.error('Error submit:', error);
@@ -163,130 +142,37 @@ const handleSingleLogin = (e) => {
     }
   };
 
-  // Di dalam page.js
-const handleUpdateSubmit = async (updatedFormData) => {
-  setLoading(true);
-  const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
+  const handleUpdateSubmit = async (updatedFormData) => {
+    setLoading(true);
+    const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
 
-  try {
-    const response = await fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        ...updatedFormData,
-        action: 'update',
-        sheetName: selectedSheet, // Sheet tanggal yang sedang aktif
-        createdBy: activeEmail
-      }),
-      redirect: 'follow',
-    });
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          ...updatedFormData,
+          action: 'update',
+          sheetName: updatedFormData.sheet_date || updatedFormData.sheetName,
+          createdBy: activeEmail
+        }),
+        redirect: 'follow',
+      });
 
-    const result = await response.json();
-    if (result.status === 'success') {
-      alert('Data berhasil diperbarui!');
-      fetchSheetsData(); // Refresh data tabel dari server
-    } else {
-      alert('Gagal memperbarui data: ' + result.message);
-    }
-  } catch (error) {
-    console.error('Error update:', error);
-    alert('Terjadi kesalahan saat memperbarui data.');
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // 1. Download Template CSV Sesuai Kolom Baru
-const handleDownloadTemplate = () => {
-  const headers = [
-    "rm", "nama_dp", "tlc", "kode_ke3", "dp_ownerless", "dp_mitra",
-    "no_rekening", "pod_npwp", "posisi", "paket_besar", "nama_lengkap",
-    "no_ktp", "nohp", "email", "link_ktp", "alamat", "nama_merekomendasikan",
-    "nik_merekomendasikan", "nama_pic", "koordinator", "posisi_merekomendasikan", "keterangan"
-  ];
-  
-  const csvContent = "data:text/csv;charset=utf-8," + headers.join(",");
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "template_pengajuan_id.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
-// 2. Fungsi Upload & Parse File CSV
-const handleFileUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = async (event) => {
-    const text = event.target.result;
-    const lines = text.split("\n").filter(line => line.trim() !== "");
-    if (lines.length <= 1) {
-      alert("File CSV kosong atau hanya berisi header.");
-      return;
-    }
-
-    // Ambil data tanpa header
-    const rows = lines.slice(1);
-    const parsedData = rows.map(row => {
-      const cols = row.split(",").map(col => col.trim().replace(/^"(.*)"$/, '$1'));
-      return {
-        rm: cols[0] || '',
-        nama_dp: cols[1] || '',
-        tlc: cols[2] || '',
-        kode_ke3: cols[3] || '',
-        dp_ownerless: cols[4] || '',
-        dp_mitra: cols[5] || '',
-        no_rekening: cols[6] || '',
-        pod_npwp: cols[7] || '',
-        posisi: cols[8] || '',
-        paket_besar: cols[9] || '',
-        nama_lengkap: cols[10] || '',
-        no_ktp: cols[11] || '',
-        nohp: cols[12] || '',
-        email: cols[13] || '',
-        link_ktp: cols[14] || '',
-        alamat: cols[15] || '',
-        nama_merekomendasikan: cols[16] || '',
-        nik_merekomendasikan: cols[17] || '',
-        nama_pic: cols[18] || '',
-        koordinator: cols[19] || '',
-        posisi_merekomendasikan: cols[20] || '',
-        keterangan: cols[21] || ''
-      };
-    });
-
-    // Kirim data per baris atau masukan ke state pengiriman
-    if (confirm(`Apakah Anda yakin ingin mengunggah ${parsedData.length} data pengajuan?`)) {
-      setLoading(true);
-      try {
-        const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
-        for (const item of parsedData) {
-          await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              ...item,
-              createdBy: activeEmail
-            }),
-            redirect: 'follow',
-          });
-        }
-        alert("Semua data xlsx berhasil diimport!");
+      const result = await response.json();
+      if (result.status === 'success') {
+        alert('Data berhasil diperbarui!');
         fetchSheetsData();
-      } catch (error) {
-        console.error("Error uploading data:", error);
-        alert("Gagal mengunggah data!");
-      } finally {
-        setLoading(false);
+      } else {
+        alert('Gagal memperbarui data: ' + (result.message || result.error));
       }
+    } catch (error) {
+      console.error('Error update:', error);
+      alert('Terjadi kesalahan saat memperbarui data.');
+    } finally {
+      setLoading(false);
     }
   };
-  reader.readAsText(file);
-};
 
   if (!userEmail) {
     return (
@@ -326,64 +212,61 @@ const handleFileUpload = (e) => {
     <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 bg-white p-4 rounded-xl border shadow-sm">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Sistem Informasi Pengajuan ID</h1>
-          <p className="text-xs text-gray-500">
-            User Logged in: <span className="font-semibold text-blue-600">{userEmail}</span>
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* INDIKATOR COUNTDOWN & SYNC DATA */}
-          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
-            <span className="text-xs text-gray-600">🔄 Auto sync dalam:</span>
-            <strong className="text-xs text-blue-600 font-mono">
-              {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
-            </strong>
-            <button
-              type="button"
-              onClick={() => {
-                fetchSheetsData(true);
-                setCountdown(120);
-              }}
-              className="ml-1 text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded transition-colors"
-            >
-              Sync Data
-            </button>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Sistem Informasi Pengajuan ID</h1>
+            <p className="text-xs text-gray-500">
+              User Logged in: <span className="font-semibold text-blue-600">{userEmail}</span>
+            </p>
           </div>
 
-          {/* TAB NAVIGASI */}
-          <div className="flex bg-gray-200 p-1 rounded-xl">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
+              <span className="text-xs text-gray-600">🔄 Auto sync dalam:</span>
+              <strong className="text-xs text-blue-600 font-mono">
+                {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
+              </strong>
+              <button
+                type="button"
+                onClick={() => {
+                  fetchSheetsData(true);
+                  setCountdown(120);
+                }}
+                className="ml-1 text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded transition-colors"
+              >
+                Sync Data
+              </button>
+            </div>
+
+            <div className="flex bg-gray-200 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setActiveTab('dashboard')}
+                className={`px-4 py-2 text-xs font-semibold rounded-lg transition ${
+                  activeTab === 'dashboard' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Dashboard Monitor
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('input')}
+                className={`px-4 py-2 text-xs font-semibold rounded-lg transition ${
+                  activeTab === 'input' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Form Input ID
+              </button>
+            </div>
+
             <button
               type="button"
-              onClick={() => setActiveTab('dashboard')}
-              className={`px-4 py-2 text-xs font-semibold rounded-lg transition ${
-                activeTab === 'dashboard' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              }`}
+              onClick={handleLogout}
+              className="px-3 py-2 text-xs font-medium text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 transition-colors"
             >
-              Dashboard Monitor
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('input')}
-              className={`px-4 py-2 text-xs font-semibold rounded-lg transition ${
-                activeTab === 'input' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Form Input ID
+              Logout
             </button>
           </div>
-
-          {/* TOMBOL LOGOUT */}
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="px-3 py-2 text-xs font-medium text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 transition-colors"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
+        </header>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center p-12 bg-white rounded-xl border">
@@ -396,8 +279,9 @@ const handleFileUpload = (e) => {
           <Dashboard 
             submissions={submissions}
             userEmail={userEmail}
+            dropdowns={dropdowns} // 👈 PENTING: Diteruskan ke Dashboard!
             onUpdateSubmit={handleUpdateSubmit}
-            onSelectSheet={setSelectedSheet} />
+          />
         )}
       </div>
     </main>
