@@ -63,7 +63,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
         const wb = XLSX.read(bstr, { type: 'array' });
         const wsName = wb.SheetNames[0];
         const ws = wb.Sheets[wsName];
-        const rawJson = XLSX.utils.sheet_to_json(ws);
+        const rawJson = XLSX.utils.sheet_to_json(ws, { raw: false, defval: '' });
 
         if (rawJson.length === 0) {
           alert("File kosong atau format salah.");
@@ -82,7 +82,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
           posisi: row['POSISI'] || row['posisi'] || 'ADMIN BACKOFFICE',
           paket_besar: row['ISI JIKA PAKET BESAR'] || row['paket_besar'] || '',
           nama_lengkap: String(row['NAMA LENGKAP (Kapital)'] || row['nama_lengkap'] || '').toUpperCase(),
-          no_ktp: String(row['NO KTP (16 Angka)'] || row['no_ktp'] || ''),
+          no_ktp: String(row['NO KTP (16 Angka)'] || row['no_ktp'] || '').trim(),
           nohp: String(row['NO HP'] || row['nohp'] || ''),
           email: row['EMAIL'] || row['email'] || userEmail || '',
           link_ktp: row['LINK FOTO KTP (DRIVE)'] || row['link_ktp'] || '',
