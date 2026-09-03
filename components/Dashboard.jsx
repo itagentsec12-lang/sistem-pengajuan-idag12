@@ -254,13 +254,14 @@ export default function Dashboard({ submissions = [], userEmail = '', onUpdateSu
 
               <InputForm 
                 userEmail={userEmail}
-                dropdowns={dropdowns} // 👈 Kirim data dropdowns dari parent/props Dashboard!
+                dropdowns={dropdowns}
                 initialData={selectedEdit} 
                 onDataSubmit={(updatedFormData) => {
                   onUpdateSubmit({ 
                     ...updatedFormData, 
-                    row: selectedEdit.row || selectedEdit.rowIndex,
-                    sheetName: selectedEdit.sheetName 
+                    action: 'update',
+                    rowIndex: selectedEdit.rowIndex || selectedEdit.row,
+                    sheetName: selectedEdit.sheet_date || selectedEdit.sheetName 
                   });
                   setSelectedEdit(null);
                 }} 
