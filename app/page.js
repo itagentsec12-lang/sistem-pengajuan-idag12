@@ -112,6 +112,7 @@ export default function HomePage() {
     setSubmissions([]);
   };
 
+  // 1. Submit Single Data (Form Manual)
   const handleDataSubmit = async (formData) => {
     setLoading(true);
     const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
@@ -142,6 +143,47 @@ export default function HomePage() {
     }
   };
 
+  // 2. Submit Bulk Data (Upload Excel/CSV Massal dengan Queue + Delay 350ms)
+  const handleBulkSubmit = async (bulkArray) => {
+    setLoading(true);
+    const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < bulkArray.length; i++) {
+      try {
+        const item = bulkArray[i];
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            ...item,
+            createdBy: activeEmail
+          }),
+          redirect: 'follow',
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch (err) {
+        console.error(`Error baris ke-${i + 1}:`, err);
+        failCount++;
+      }
+
+      // Jeda 350ms antar-request agar Google Apps Script tidak menolak akibat rate-limit
+      await new Promise((resolve) => setTimeout(resolve, 350));
+    }
+
+    alert(`Proses Upload Massal Selesai!\n✅ Berhasil: ${successCount} data\n❌ Gagal: ${failCount} data`);
+    await fetchSheetsData();
+    setLoading(false);
+  };
+
+  // 3. Update Existing Data (Edit dari Dashboard)
   const handleUpdateSubmit = async (updatedFormData) => {
     setLoading(true);
     const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
@@ -271,15 +313,20 @@ export default function HomePage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center p-12 bg-white rounded-xl border">
             <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-3"></div>
-            <p className="text-sm text-gray-600 font-medium">Memuat data...</p>
+            <p className="text-sm text-gray-600 font-medium">Memuat & Memproses Data...</p>
           </div>
         ) : activeTab === 'input' ? (
-          <InputForm userEmail={userEmail} dropdowns={dropdowns} onDataSubmit={handleDataSubmit} />
+          <InputForm 
+            userEmail={userEmail} 
+            dropdowns={dropdowns} 
+            onDataSubmit={handleDataSubmit}
+            onBulkSubmit={handleBulkSubmit}
+          />
         ) : (
           <Dashboard 
             submissions={submissions}
             userEmail={userEmail}
-            dropdowns={dropdowns} // 👈 PENTING: Diteruskan ke Dashboard!
+            dropdowns={dropdowns}
             onUpdateSubmit={handleUpdateSubmit}
           />
         )}

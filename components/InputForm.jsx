@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { getActiveSession } from '../lib/sessionCheck';
 import * as XLSX from 'xlsx';
 
-export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, initialData = null }) {
+export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onBulkSubmit, initialData = null  }) {
   const [session, setSession] = useState({ isActive: false, sessionName: '', message: '' });
 
   const initialForm = {
@@ -45,6 +45,67 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, ini
   const dpList = dropdowns?.nama_dp || dropdowns?.dp || [];
   const ownerlessList = dropdowns?.dp_ownerless || dropdowns?.ownerless || [];
   const mitraList = dropdowns?.dp_mitra || dropdowns?.mitra || [];
+
+  // Tambahkan handler upload Excel/CSV di InputForm.jsx
+const handleFileUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (!session.isActive) {
+    alert("Upload gagal: Sesi pengajuan sedang TUTUP.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try {
+      const bstr = evt.target.result;
+      const wb = XLSX.read(bstr, { type: 'array' });
+      const wsName = wb.SheetNames[0];
+      const ws = wb.Sheets[wsName];
+      const rawJson = XLSX.utils.sheet_to_json(ws);
+
+      if (rawJson.length === 0) {
+        alert("File kosong atau format salah.");
+        return;
+      }
+
+      // Formatting array data
+      const parsedData = rawJson.map((row) => ({
+        rm: row['RM'] || row['rm'] || '',
+        nama_dp: row['NAMA DP / DC'] || row['nama_dp'] || '',
+        tlc: String(row['KODE TLC (Kapital)'] || row['tlc'] || '').toUpperCase(),
+        kode_ke3: row['KODE KE 3'] || row['kode_ke3'] || '',
+        dp_ownerless: row['DP OWNERLESS VENDOR'] || row['dp_ownerless'] || '',
+        dp_mitra: row['DP MITRA VENDOR'] || row['dp_mitra'] || '',
+        no_rekening: String(row['NO REKENING'] || row['no_rekening'] || ''),
+        pod_npwp: String(row['POD NPWP'] || row['pod_npwp'] || ''),
+        posisi: row['POSISI'] || row['posisi'] || 'ADMIN BACKOFFICE',
+        paket_besar: row['ISI JIKA PAKET BESAR'] || row['paket_besar'] || '',
+        nama_lengkap: String(row['NAMA LENGKAP (Kapital)'] || row['nama_lengkap'] || '').toUpperCase(),
+        no_ktp: String(row['NO KTP (16 Angka)'] || row['no_ktp'] || ''),
+        nohp: String(row['NO HP'] || row['nohp'] || ''),
+        email: row['EMAIL'] || row['email'] || userEmail || '',
+        link_ktp: row['LINK FOTO KTP (DRIVE)'] || row['link_ktp'] || '',
+        alamat: row['ALAMAT'] || row['alamat'] || '',
+        nama_merekomendasikan: row['NAMA YANG MEREKOMENDASIKAN'] || row['nama_merekomendasikan'] || '',
+        nik_merekomendasikan: row['NIK KTP YANG MEREKOMENDASIKAN'] || row['nik_merekomendasikan'] || '',
+        nama_pic: row['NAMA PIC'] || row['nama_pic'] || '',
+        koordinator: row['KOORDINATOR'] || row['koordinator'] || '',
+        posisi_merekomendasikan: row['POSISI YANG MEREKOMENDASIKAN'] || row['posisi_merekomendasikan'] || '',
+        keterangan: row['KETERANGAN'] || row['keterangan'] || '',
+      }));
+
+      if (onBulkSubmit) {
+        onBulkSubmit(parsedData);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Gagal membaca file Excel/CSV.");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+};
 
   useEffect(() => {
     const checkSession = () => setSession(getActiveSession());
