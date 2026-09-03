@@ -210,6 +210,19 @@ const handleFileUpload = (e) => {
         <span className="text-xs font-bold px-3 py-1 bg-white rounded-md shadow-sm border">{session.sessionName}</span>
       </div>
 
+      {/* Card Upload Massal */}
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
+        <h3 className="font-bold text-gray-800 text-md mb-1">📂 Upload Data Massal (Excel / CSV)</h3>
+        <p className="text-xs text-gray-500 mb-4">Unggah file .xlsx atau .csv sesuai format kolom pengajuan.</p>
+        <input
+          type="file"
+          accept=".xlsx, .xls, .csv"
+          onChange={handleFileUpload}
+          disabled={!session.isActive}
+          className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+        />
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-6 border-b pb-4">
           <div>
