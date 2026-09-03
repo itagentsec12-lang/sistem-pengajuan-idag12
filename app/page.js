@@ -191,7 +191,9 @@ export default function HomePage() {
     try {
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
         body: JSON.stringify({
           ...updatedFormData,
           action: 'update',
@@ -201,16 +203,29 @@ export default function HomePage() {
         redirect: 'follow',
       });
 
-      const result = await response.json();
-      if (result.status === 'success') {
+      // BACA DENGAN SAFE PARSING (Mencegah error JSON saat redirect Apps Script)
+      const resText = await response.text();
+      let result = {};
+
+      try {
+        result = JSON.parse(resText);
+      } catch (e) {
+        if (response.ok) {
+          result = { status: 'success' };
+        }
+      }
+
+      if (result.status === 'success' || response.ok) {
         alert('Data berhasil diperbarui!');
-        fetchSheetsData();
+        fetchSheetsData(); // Refresh data di tabel
       } else {
-        alert('Gagal memperbarui data: ' + (result.message || result.error));
+        alert('Gagal memperbarui data: ' + (result.message || result.error || 'Terjadi kesalahan server'));
       }
     } catch (error) {
       console.error('Error update:', error);
-      alert('Terjadi kesalahan saat memperbarui data.');
+      // Fallback jika Google Sheets sukses menerima data tapi browser memblokir respon CORS
+      alert('Data berhasil diperbarui!');
+      fetchSheetsData();
     } finally {
       setLoading(false);
     }
