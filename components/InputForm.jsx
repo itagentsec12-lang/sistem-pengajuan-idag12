@@ -46,104 +46,100 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
   const ownerlessList = dropdowns?.dp_ownerless || dropdowns?.ownerless || [];
   const mitraList = dropdowns?.dp_mitra || dropdowns?.mitra || [];
 
-  // Tambahkan handler upload Excel/CSV di InputForm.jsx
-const handleFileUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  // 1. HANDLER UPLOAD FILE (Ditutup sampai selesai)
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  if (!session.isActive) {
-    alert("Upload gagal: Sesi pengajuan sedang TUTUP.");
-    return;
-  }
-
-  // Handler Download Template Excel Resmi
-const handleDownloadTemplate = () => {
-  const templateData = [
-    {
-      'RM': 'RM BANTEN 1',
-      'NAMA DP / DC': 'DP TANGERANG',
-      'KODE TLC (Kapital)': 'TGR01A',
-      'KODE KE 3': 'ABC',
-      'DP OWNERLESS VENDOR': 'NO',
-      'DP MITRA VENDOR': 'NO',
-      'NO REKENING': '1234567890',
-      'POD NPWP': '123456789012345',
-      'POSISI': 'ADMIN BACKOFFICE',
-      'ISI JIKA PAKET BESAR': '',
-      'NAMA LENGKAP (Kapital)': 'FULAN BIN FULAN',
-      'NO KTP (16 Angka)': '3671012345670001',
-      'NO HP': '081234567890',
-      'EMAIL': userEmail || 'user@gmail.com',
-      'LINK FOTO KTP (DRIVE)': 'https://drive.google.com/file/d/xxx/view',
-      'ALAMAT': 'Jl. Raya Merdeka No. 123',
-      'NAMA YANG MEREKOMENDASIKAN': 'BUDI',
-      'NIK KTP YANG MEREKOMENDASIKAN': '3671012345670002',
-      'NAMA PIC': 'ANDI',
-      'KOORDINATOR': 'EKO',
-      'POSISI YANG MEREKOMENDASIKAN': 'SPV',
-      'KETERANGAN': 'Pengajuan Baru'
+    if (!session.isActive) {
+      alert("Upload gagal: Sesi pengajuan sedang TUTUP.");
+      return;
     }
-  ];
 
-  // Buat worksheet dan workbook Excel menggunakan xlsx
-  const ws = XLSX.utils.json_to_sheet(templateData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Template_Pengajuan');
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const bstr = evt.target.result;
+        const wb = XLSX.read(bstr, { type: 'array' });
+        const wsName = wb.SheetNames[0];
+        const ws = wb.Sheets[wsName];
+        const rawJson = XLSX.utils.sheet_to_json(ws);
 
-  // Download file .xlsx
-  XLSX.writeFile(wb, 'Template_Pengajuan_ID_Massal.xlsx');
-};
+        if (rawJson.length === 0) {
+          alert("File kosong atau format salah.");
+          return;
+        }
 
-  const reader = new FileReader();
-  reader.onload = (evt) => {
-    try {
-      const bstr = evt.target.result;
-      const wb = XLSX.read(bstr, { type: 'array' });
-      const wsName = wb.SheetNames[0];
-      const ws = wb.Sheets[wsName];
-      const rawJson = XLSX.utils.sheet_to_json(ws);
+        const parsedData = rawJson.map((row) => ({
+          rm: row['RM'] || row['rm'] || '',
+          nama_dp: row['NAMA DP / DC'] || row['nama_dp'] || '',
+          tlc: String(row['KODE TLC (Kapital)'] || row['tlc'] || '').toUpperCase(),
+          kode_ke3: row['KODE KE 3'] || row['kode_ke3'] || '',
+          dp_ownerless: row['DP OWNERLESS VENDOR'] || row['dp_ownerless'] || '',
+          dp_mitra: row['DP MITRA VENDOR'] || row['dp_mitra'] || '',
+          no_rekening: String(row['NO REKENING'] || row['no_rekening'] || ''),
+          pod_npwp: String(row['POD NPWP'] || row['pod_npwp'] || ''),
+          posisi: row['POSISI'] || row['posisi'] || 'ADMIN BACKOFFICE',
+          paket_besar: row['ISI JIKA PAKET BESAR'] || row['paket_besar'] || '',
+          nama_lengkap: String(row['NAMA LENGKAP (Kapital)'] || row['nama_lengkap'] || '').toUpperCase(),
+          no_ktp: String(row['NO KTP (16 Angka)'] || row['no_ktp'] || ''),
+          nohp: String(row['NO HP'] || row['nohp'] || ''),
+          email: row['EMAIL'] || row['email'] || userEmail || '',
+          link_ktp: row['LINK FOTO KTP (DRIVE)'] || row['link_ktp'] || '',
+          alamat: row['ALAMAT'] || row['alamat'] || '',
+          nama_merekomendasikan: row['NAMA YANG MEREKOMENDASIKAN'] || row['nama_merekomendasikan'] || '',
+          nik_merekomendasikan: row['NIK KTP YANG MEREKOMENDASIKAN'] || row['nik_merekomendasikan'] || '',
+          nama_pic: row['NAMA PIC'] || row['nama_pic'] || '',
+          koordinator: row['KOORDINATOR'] || row['koordinator'] || '',
+          posisi_merekomendasikan: row['POSISI YANG MEREKOMENDASIKAN'] || row['posisi_merekomendasikan'] || '',
+          keterangan: row['KETERANGAN'] || row['keterangan'] || '',
+        }));
 
-      if (rawJson.length === 0) {
-        alert("File kosong atau format salah.");
-        return;
+        if (onBulkSubmit) {
+          onBulkSubmit(parsedData);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Gagal membaca file Excel/CSV.");
       }
+    };
+    reader.readAsArrayBuffer(file);
+  }; // <--- SANGAT PENTING: Penutup fungsi handleFileUpload
 
-      // Formatting array data
-      const parsedData = rawJson.map((row) => ({
-        rm: row['RM'] || row['rm'] || '',
-        nama_dp: row['NAMA DP / DC'] || row['nama_dp'] || '',
-        tlc: String(row['KODE TLC (Kapital)'] || row['tlc'] || '').toUpperCase(),
-        kode_ke3: row['KODE KE 3'] || row['kode_ke3'] || '',
-        dp_ownerless: row['DP OWNERLESS VENDOR'] || row['dp_ownerless'] || '',
-        dp_mitra: row['DP MITRA VENDOR'] || row['dp_mitra'] || '',
-        no_rekening: String(row['NO REKENING'] || row['no_rekening'] || ''),
-        pod_npwp: String(row['POD NPWP'] || row['pod_npwp'] || ''),
-        posisi: row['POSISI'] || row['posisi'] || 'ADMIN BACKOFFICE',
-        paket_besar: row['ISI JIKA PAKET BESAR'] || row['paket_besar'] || '',
-        nama_lengkap: String(row['NAMA LENGKAP (Kapital)'] || row['nama_lengkap'] || '').toUpperCase(),
-        no_ktp: String(row['NO KTP (16 Angka)'] || row['no_ktp'] || ''),
-        nohp: String(row['NO HP'] || row['nohp'] || ''),
-        email: row['EMAIL'] || row['email'] || userEmail || '',
-        link_ktp: row['LINK FOTO KTP (DRIVE)'] || row['link_ktp'] || '',
-        alamat: row['ALAMAT'] || row['alamat'] || '',
-        nama_merekomendasikan: row['NAMA YANG MEREKOMENDASIKAN'] || row['nama_merekomendasikan'] || '',
-        nik_merekomendasikan: row['NIK KTP YANG MEREKOMENDASIKAN'] || row['nik_merekomendasikan'] || '',
-        nama_pic: row['NAMA PIC'] || row['nama_pic'] || '',
-        koordinator: row['KOORDINATOR'] || row['koordinator'] || '',
-        posisi_merekomendasikan: row['POSISI YANG MEREKOMENDASIKAN'] || row['posisi_merekomendasikan'] || '',
-        keterangan: row['KETERANGAN'] || row['keterangan'] || '',
-      }));
-
-      if (onBulkSubmit) {
-        onBulkSubmit(parsedData);
+  // 2. HANDLER DOWNLOAD TEMPLATE EXCEL (Di luar fungsi handleFileUpload)
+  const handleDownloadTemplate = () => {
+    const templateData = [
+      {
+        'RM': 'RM BANTEN 1',
+        'NAMA DP / DC': 'DP TANGERANG',
+        'KODE TLC (Kapital)': 'TGR01A',
+        'KODE KE 3': 'ABC',
+        'DP OWNERLESS VENDOR': 'NO',
+        'DP MITRA VENDOR': 'NO',
+        'NO REKENING': '1234567890',
+        'POD NPWP': '123456789012345',
+        'POSISI': 'ADMIN BACKOFFICE',
+        'ISI JIKA PAKET BESAR': '',
+        'NAMA LENGKAP (Kapital)': 'FULAN BIN FULAN',
+        'NO KTP (16 Angka)': '3671012345670001',
+        'NO HP': '081234567890',
+        'EMAIL': userEmail || 'user@gmail.com',
+        'LINK FOTO KTP (DRIVE)': 'https://drive.google.com/file/d/xxx/view',
+        'ALAMAT': 'Jl. Raya Merdeka No. 123',
+        'NAMA YANG MEREKOMENDASIKAN': 'BUDI',
+        'NIK KTP YANG MEREKOMENDASIKAN': '3671012345670002',
+        'NAMA PIC': 'ANDI',
+        'KOORDINATOR': 'EKO',
+        'POSISI YANG MEREKOMENDASIKAN': 'SPV',
+        'KETERANGAN': 'Pengajuan Baru'
       }
-    } catch (err) {
-      console.error(err);
-      alert("Gagal membaca file Excel/CSV.");
-    }
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Template_Pengajuan');
+    XLSX.writeFile(wb, 'Template_Pengajuan_ID_Massal.xlsx');
   };
-  reader.readAsArrayBuffer(file);
-};
 
   useEffect(() => {
     const checkSession = () => setSession(getActiveSession());
