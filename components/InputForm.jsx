@@ -56,6 +56,44 @@ const handleFileUpload = (e) => {
     return;
   }
 
+  // Handler Download Template Excel Resmi
+const handleDownloadTemplate = () => {
+  const templateData = [
+    {
+      'RM': 'RM BANTEN 1',
+      'NAMA DP / DC': 'DP TANGERANG',
+      'KODE TLC (Kapital)': 'TGR01A',
+      'KODE KE 3': 'ABC',
+      'DP OWNERLESS VENDOR': 'NO',
+      'DP MITRA VENDOR': 'NO',
+      'NO REKENING': '1234567890',
+      'POD NPWP': '123456789012345',
+      'POSISI': 'ADMIN BACKOFFICE',
+      'ISI JIKA PAKET BESAR': '',
+      'NAMA LENGKAP (Kapital)': 'FULAN BIN FULAN',
+      'NO KTP (16 Angka)': '3671012345670001',
+      'NO HP': '081234567890',
+      'EMAIL': userEmail || 'user@gmail.com',
+      'LINK FOTO KTP (DRIVE)': 'https://drive.google.com/file/d/xxx/view',
+      'ALAMAT': 'Jl. Raya Merdeka No. 123',
+      'NAMA YANG MEREKOMENDASIKAN': 'BUDI',
+      'NIK KTP YANG MEREKOMENDASIKAN': '3671012345670002',
+      'NAMA PIC': 'ANDI',
+      'KOORDINATOR': 'EKO',
+      'POSISI YANG MEREKOMENDASIKAN': 'SPV',
+      'KETERANGAN': 'Pengajuan Baru'
+    }
+  ];
+
+  // Buat worksheet dan workbook Excel menggunakan xlsx
+  const ws = XLSX.utils.json_to_sheet(templateData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Template_Pengajuan');
+
+  // Download file .xlsx
+  XLSX.writeFile(wb, 'Template_Pengajuan_ID_Massal.xlsx');
+};
+
   const reader = new FileReader();
   reader.onload = (evt) => {
     try {
@@ -211,18 +249,39 @@ const handleFileUpload = (e) => {
       </div>
 
       {/* Card Upload Massal */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
-        <h3 className="font-bold text-gray-800 text-md mb-1">📂 Upload Data Massal (Excel / CSV)</h3>
-        <p className="text-xs text-gray-500 mb-4">Unggah file .xlsx atau .csv sesuai format kolom pengajuan.</p>
-        <input
-          type="file"
-          accept=".xlsx, .xls, .csv"
-          onChange={handleFileUpload}
-          disabled={!session.isActive}
-          className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
-        />
-      </div>
+      {/* Card Upload Massal & Download Template */}
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
+          <div>
+            <h3 className="font-bold text-gray-800 text-base">📂 Upload Data Massal (Excel / CSV)</h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Unggah file .xlsx atau .csv untuk memasukkan banyak data sekaligus.
+            </p>
+          </div>
+          
+          {/* Tombol Download Template */}
+          <button
+            type="button"
+            onClick={handleDownloadTemplate}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold hover:bg-emerald-100 transition shadow-sm w-fit"
+          >
+            📥 Download Template Excel
+          </button>
+        </div>
 
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-2">
+            Pilih File Excel / CSV:
+          </label>
+          <input
+            type="file"
+            accept=".xlsx, .xls, .csv"
+            onChange={handleFileUpload}
+            disabled={!session.isActive}
+            className="block w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border rounded-lg p-1 bg-gray-50/50"
+          />
+        </div>
+      </div>
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-6 border-b pb-4">
           <div>
