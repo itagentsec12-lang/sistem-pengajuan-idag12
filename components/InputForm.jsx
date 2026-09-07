@@ -106,39 +106,104 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
     reader.readAsArrayBuffer(file);
   }; // <--- SANGAT PENTING: Penutup fungsi handleFileUpload
 
-  // 2. HANDLER DOWNLOAD TEMPLATE EXCEL (Di luar fungsi handleFileUpload)
-  const handleDownloadTemplate = () => {
-    const templateData = [
-      {
-        'RM': 'RM BANTEN 1',
-        'NAMA DP / DC': 'DP TANGERANG',
-        'KODE TLC (Kapital)': 'TGR01A',
-        'KODE KE 3': 'ABC',
-        'DP OWNERLESS VENDOR': 'NO',
-        'DP MITRA VENDOR': 'NO',
-        'NO REKENING': '1234567890',
-        'POD NPWP': '123456789012345',
-        'POSISI': 'ADMIN BACKOFFICE',
-        'ISI JIKA PAKET BESAR': '',
-        'NAMA LENGKAP (Kapital)': 'FULAN BIN FULAN',
-        'NO KTP (16 Angka)': '3671012345670001',
-        'NO HP': '081234567890',
-        'EMAIL': userEmail || 'user@gmail.com',
-        'LINK FOTO KTP (DRIVE)': 'https://drive.google.com/file/d/xxx/view',
-        'ALAMAT': 'Jl. Raya Merdeka No. 123',
-        'NAMA YANG MEREKOMENDASIKAN': 'BUDI',
-        'NIK KTP YANG MEREKOMENDASIKAN': '3671012345670002',
-        'NAMA PIC': 'ANDI',
-        'KOORDINATOR': 'EKO',
-        'POSISI YANG MEREKOMENDASIKAN': 'SPV',
-        'KETERANGAN': 'Pengajuan Baru'
-      }
+  // 2. HANDLER DOWNLOAD TEMPLATE EXCEL DENGAN DROPDOWN
+  const handleDownloadTemplate = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Template_Pengajuan');
+
+    const rmList = dropdowns?.rm || ['RM BANTEN 1', 'RM BANTEN 2'];
+    const dpList = dropdowns?.nama_dp || ['DP TANGERANG', 'DP SERPONG', 'EAST_FORESTA', 'GRAHA_SUTERA'];
+    const ownerlessList = ['YES', 'NO'];
+    const mitraList = ['YES', 'NO', 'MITRA'];
+    const posisiList = posisiOptions || ['SPRINTER DELIVERY', 'MONITORING/OWNER', 'SALES/MARKETING', 'ED', 'NDP', 'DP CC', 'OTHER ISI DI KETERANGAN'];
+
+    worksheet.columns = [
+      { header: 'RM', key: 'rm', width: 20 },
+      { header: 'NAMA DP / DC', key: 'nama_dp', width: 25 },
+      { header: 'KODE TLC (Kapital)', key: 'tlc', width: 20 },
+      { header: 'KODE KE 3', key: 'kode_ke3', width: 15 },
+      { header: 'DP OWNERLESS VENDOR', key: 'dp_ownerless', width: 22 },
+      { header: 'DP MITRA VENDOR', key: 'dp_mitra', width: 20 },
+      { header: 'NO REKENING', key: 'no_rekening', width: 20 },
+      { header: 'POD NPWP', key: 'pod_npwp', width: 20 },
+      { header: 'POSISI', key: 'posisi', width: 25 },
+      { header: 'ISI JIKA PAKET BESAR', key: 'paket_besar', width: 22 },
+      { header: 'NAMA LENGKAP (Kapital)', key: 'nama_lengkap', width: 30 },
+      { header: 'NO KTP (16 Angka)', key: 'no_ktp', width: 22 },
+      { header: 'NO HP', key: 'nohp', width: 18 },
+      { header: 'EMAIL', key: 'email', width: 25 },
+      { header: 'LINK FOTO KTP (DRIVE)', key: 'link_ktp', width: 35 },
+      { header: 'ALAMAT', key: 'alamat', width: 35 },
+      { header: 'NAMA YANG MEREKOMENDASIKAN', key: 'nama_merekomendasikan', width: 30 },
+      { header: 'NIK KTP YANG MEREKOMENDASIKAN', key: 'nik_merekomendasikan', width: 30 },
+      { header: 'NAMA PIC', key: 'nama_pic', width: 20 },
+      { header: 'KOORDINATOR', key: 'koordinator', width: 20 },
+      { header: 'POSISI YANG MEREKOMENDASIKAN', key: 'posisi_merekomendasikan', width: 30 },
+      { header: 'KETERANGAN', key: 'keterangan', width: 25 },
     ];
 
-    const ws = XLSX.utils.json_to_sheet(templateData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Template_Pengajuan');
-    XLSX.writeFile(wb, 'Template_Pengajuan_ID_Massal.xlsx');
+    worksheet.addRow({
+      rm: rmList[0] || '',
+      nama_dp: dpList[0] || '',
+      tlc: 'TGR01A',
+      kode_ke3: 'ABC',
+      dp_ownerless: 'NO',
+      dp_mitra: 'MITRA',
+      no_rekening: '4922406760',
+      pod_npwp: '123456789012345',
+      posisi: 'SPRINTER DELIVERY',
+      paket_besar: '',
+      nama_lengkap: 'FULAN BIN FULAN',
+      no_ktp: '3671012345670001',
+      nohp: '081234567890',
+      email: userEmail || 'user@gmail.com',
+      link_ktp: 'https://drive.google.com/file/d/xxx/view',
+      alamat: 'GRAHA EMERALD 2 M05/06 JL BOULEVARD',
+      nama_merekomendasikan: 'BUDI',
+      nik_merekomendasikan: '3671012345670002',
+      nama_pic: 'ANDI',
+      koordinator: 'EKO',
+      posisi_merekomendasikan: 'SPV',
+      keterangan: 'Pengajuan Baru'
+    });
+
+    for (let i = 2; i <= 100; i++) {
+      worksheet.getCell(`A${i}`).dataValidation = {
+        type: 'list',
+        allowBlank: true,
+        formulae: [`"${rmList.join(',')}"`]
+      };
+      worksheet.getCell(`B${i}`).dataValidation = {
+        type: 'list',
+        allowBlank: true,
+        formulae: [`"${dpList.join(',')}"`]
+      };
+      worksheet.getCell(`E${i}`).dataValidation = {
+        type: 'list',
+        allowBlank: true,
+        formulae: [`"${ownerlessList.join(',')}"`]
+      };
+      worksheet.getCell(`F${i}`).dataValidation = {
+        type: 'list',
+        allowBlank: true,
+        formulae: [`"${mitraList.join(',')}"`]
+      };
+      worksheet.getCell(`I${i}`).dataValidation = {
+        type: 'list',
+        allowBlank: true,
+        formulae: [`"${posisiList.join(',')}"`]
+      };
+    }
+
+    // Proses download pengganti
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'Template_Pengajuan_ID_Massal.xlsx';
+    anchor.click();
+    window.URL.revokeObjectURL(url);
   };
 
   useEffect(() => {
