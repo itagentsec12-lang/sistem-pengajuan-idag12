@@ -16,6 +16,7 @@ export default function Dashboard({ submissions = [], userEmail = '', onUpdateSu
     'intantrisnawatiii@gmail.com',
     'dbidagent12@gmail.com',
     'alfin.rama@raharja.info',
+    'reginachristals@gmail.com',
     'jet.sigit@gmail.com'
   ];
 
