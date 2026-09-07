@@ -121,8 +121,17 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
       // 1. Persiapan Data Opsi
       const rawRm = Array.isArray(dropdowns?.rm) && dropdowns.rm.length > 0 ? dropdowns.rm : ['RAHMAN', 'ARMAN', 'AMIR'];
       const rawDp = Array.isArray(dropdowns?.nama_dp) && dropdowns.nama_dp.length > 0 ? dropdowns.nama_dp : ['GADING_SERPONG', 'CIMONE_RAYA', 'CIBODAS_BARU', 'ALAM_SEGAR'];
-      const ownerlessList = ['YES', 'NO'];
-      const mitraList = ['YES', 'NO', 'MITRA', 'SML'];
+      const ownerlessList = (Array.isArray(dropdowns?.dp_ownerless) && dropdowns.dp_ownerless.length > 0)
+        ? dropdowns.dp_ownerless
+        : (Array.isArray(dropdowns?.ownerless) && dropdowns.ownerless.length > 0)
+          ? dropdowns.ownerless
+          : ['DIS', 'KCB', 'MKCB', 'MPP', 'J&T', 'ENLIG', 'MSML', 'SML', 'MAHAKAM', 'BARAK'];
+
+      const mitraList = (Array.isArray(dropdowns?.dp_mitra) && dropdowns.dp_mitra.length > 0)
+        ? dropdowns.dp_mitra
+        : (Array.isArray(dropdowns?.mitra) && dropdowns.mitra.length > 0)
+          ? dropdowns.mitra
+          : ['AGP', 'ALULA', 'BARAK', 'SDM', 'AGM', 'ZPA', 'BSI', 'FF', 'DIS', 'MITRA', 'KCB', 'MKCB', 'BARAK', 'ENLIG', 'SML', 'MSML', 'ENLIG', 'MPP'];
       const posisiList = [
         'ADMIN_BACKOFFICE',
         'PROCESSING_BACKOFFICE',
