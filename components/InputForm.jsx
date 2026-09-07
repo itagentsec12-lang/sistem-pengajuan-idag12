@@ -107,22 +107,22 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
     reader.readAsArrayBuffer(file);
   }; // <--- SANGAT PENTING: Penutup fungsi handleFileUpload
 
-  // 2. HANDLER DOWNLOAD TEMPLATE EXCEL DENGAN DROPDOWN POSISI TERBARU
+  // 2. HANDLER DOWNLOAD TEMPLATE EXCEL DENGAN HIDDEN LIST SHEET (TANPA ERROR 255 CHAR)
   const handleDownloadTemplate = async () => {
     try {
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Template_Pengajuan');
-
-      // Ambil opsi RM dan DP dari props/state
-      const rawRm = Array.isArray(dropdowns?.rm) ? dropdowns.rm : ['RAHMAN', 'ARMAN'];
-      const rawDp = Array.isArray(dropdowns?.nama_dp) ? dropdowns.nama_dp : ['GADING_SERPONG', 'CIMONE_RAYA', 'CIBODAS_BARU'];
       
-      const rmList = rawRm.map(item => String(item).replace(/"/g, '""'));
-      const dpList = rawDp.map(item => String(item).replace(/"/g, '""'));
+      // Sheet Utama
+      const worksheet = workbook.addWorksheet('Template_Pengajuan');
+      // Sheet Khusus Menampung Opsi (Akan Di-hide)
+      const listSheet = workbook.addWorksheet('Lists');
+      listSheet.state = 'hidden';
+
+      // 1. Persiapan Data Opsi
+      const rawRm = Array.isArray(dropdowns?.rm) && dropdowns.rm.length > 0 ? dropdowns.rm : ['RAHMAN', 'ARMAN', 'AMIR'];
+      const rawDp = Array.isArray(dropdowns?.nama_dp) && dropdowns.nama_dp.length > 0 ? dropdowns.nama_dp : ['GADING_SERPONG', 'CIMONE_RAYA', 'CIBODAS_BARU', 'ALAM_SEGAR'];
       const ownerlessList = ['YES', 'NO'];
       const mitraList = ['YES', 'NO', 'MITRA', 'SML'];
-      
-      // Opsi POSISI sesuai gambar Spreadsheet
       const posisiList = [
         'ADMIN_BACKOFFICE',
         'PROCESSING_BACKOFFICE',
@@ -140,9 +140,17 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
         'DP CC',
         'POSISI',
         'ADMIN RETUR'
-      ].map(item => String(item).replace(/"/g, '""'));
+      ];
 
-      // Header Kolom
+      // 2. Tulis Opsi Dropdown ke Sheet Hidden 'Lists'
+      // Kolom A: RM, Kolom B: DP, Kolom C: Ownerless, Kolom D: Mitra, Kolom E: Posisi
+      rawRm.forEach((val, idx) => { listSheet.getCell(`A${idx + 1}`).value = val; });
+      rawDp.forEach((val, idx) => { listSheet.getCell(`B${idx + 1}`).value = val; });
+      ownerlessList.forEach((val, idx) => { listSheet.getCell(`C${idx + 1}`).value = val; });
+      mitraList.forEach((val, idx) => { listSheet.getCell(`D${idx + 1}`).value = val; });
+      posisiList.forEach((val, idx) => { listSheet.getCell(`E${idx + 1}`).value = val; });
+
+      // 3. Setup Header Kolom Utama
       worksheet.columns = [
         { header: 'RM', key: 'rm', width: 20 },
         { header: 'NAMA DP / DC', key: 'nama_dp', width: 25 },
@@ -168,10 +176,10 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
         { header: 'KETERANGAN', key: 'keterangan', width: 25 },
       ];
 
-      // Contoh 1 Baris Isian
+      // 4. Baris Contoh Data
       worksheet.addRow({
-        rm: rawRm[0] || 'RAHMAN',
-        nama_dp: rawDp[0] || 'GADING_SERPONG',
+        rm: rawRm[0] || 'AMIR',
+        nama_dp: rawDp[0] || 'ALAM_SEGAR',
         tlc: 'BAL01E',
         kode_ke3: '99',
         dp_ownerless: 'NO',
@@ -194,40 +202,42 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
         keterangan: 'Pengajuan Baru'
       });
 
-      // Menerapkan Dropdown Validation (Baris 2 s/d 100)
+      // 5. Pasang Data Validation Menggunakan Referensi Range Cell Sheet Lists (Baris 2 - 100)
+      const rmRange = `Lists!$A$1:$A$${rawRm.length}`;
+      const dpRange = `Lists!$B$1:$B$${rawDp.length}`;
+      const ownerlessRange = `Lists!$C$1:$C$${ownerlessList.length}`;
+      const mitraRange = `Lists!$D$1:$D$${mitraList.length}`;
+      const posisiRange = `Lists!$E$1:$E$${posisiList.length}`;
+
       for (let i = 2; i <= 100; i++) {
-        if (rmList.length > 0) {
-          worksheet.getCell(`A${i}`).dataValidation = {
-            type: 'list',
-            allowBlank: true,
-            formulae: [`"${rmList.join(',')}"`]
-          };
-        }
-        if (dpList.length > 0) {
-          worksheet.getCell(`B${i}`).dataValidation = {
-            type: 'list',
-            allowBlank: true,
-            formulae: [`"${dpList.join(',')}"`]
-          };
-        }
+        worksheet.getCell(`A${i}`).dataValidation = {
+          type: 'list',
+          allowBlank: true,
+          formulae: [rmRange]
+        };
+        worksheet.getCell(`B${i}`).dataValidation = {
+          type: 'list',
+          allowBlank: true,
+          formulae: [dpRange]
+        };
         worksheet.getCell(`E${i}`).dataValidation = {
           type: 'list',
           allowBlank: true,
-          formulae: [`"${ownerlessList.join(',')}"`]
+          formulae: [ownerlessRange]
         };
         worksheet.getCell(`F${i}`).dataValidation = {
           type: 'list',
           allowBlank: true,
-          formulae: [`"${mitraList.join(',')}"`]
+          formulae: [mitraRange]
         };
         worksheet.getCell(`I${i}`).dataValidation = {
           type: 'list',
           allowBlank: true,
-          formulae: [`"${posisiList.join(',')}"`]
+          formulae: [posisiRange]
         };
       }
 
-      // Generate & Trigger Download File Excel
+      // 6. Generate & Trigger Download File Excel
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
