@@ -17,7 +17,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
     dp_mitra: '',
     no_rekening: '',
     pod_npwp: '',
-    posisi: 'ADMIN BACKOFFICE',
+    posisi: 'ADMIN_BACKOFFICE',
     paket_besar: '',
     nama_lengkap: '',
     no_ktp: '',
@@ -36,7 +36,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
   const [formData, setFormData] = useState(initialForm);
 
   const posisiOptions = [
-    "ADMIN BACKOFFICE", "PROCESSING BACKOFFICE", "COORDINATOR BACKOFFICE",
+    "ADMIN_BACKOFFICE", "PROCESSING BACKOFFICE", "COORDINATOR BACKOFFICE",
     "SPV", "TRANSPORTER", "SPRINTER PICKUP", "IMPLAN PROCESSING",
     "SPRINTER DELIVERY", "MONITORING/OWNER", "SALES/MARKETING",
     "ED", "MDP", "DP CC", "OTHER ISI DI KETERANGAN"
@@ -80,7 +80,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
           dp_mitra: row['DP MITRA VENDOR'] || row['dp_mitra'] || '',
           no_rekening: String(row['NO REKENING'] || row['no_rekening'] || ''),
           pod_npwp: String(row['POD NPWP'] || row['pod_npwp'] || ''),
-          posisi: row['POSISI'] || row['posisi'] || 'ADMIN BACKOFFICE',
+          posisi: row['POSISI'] || row['posisi'] || 'ADMIN_BACKOFFICE',
           paket_besar: row['ISI JIKA PAKET BESAR'] || row['paket_besar'] || '',
           nama_lengkap: String(row['NAMA LENGKAP (Kapital)'] || row['nama_lengkap'] || '').toUpperCase(),
           no_ktp: String(row['NO KTP (16 Angka)'] || row['no_ktp'] || '').trim(),
@@ -302,7 +302,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
         dp_mitra: matchOptionValue(rawMitra, mitraList),
         no_rekening: getVal(['no_rekening', 'NO REKENING']),
         pod_npwp: getVal(['pod_npwp', 'POD NPWP']),
-        posisi: matchOptionValue(rawPosisi, posisiOptions) || 'ADMIN BACKOFFICE',
+        posisi: matchOptionValue(rawPosisi, posisiOptions) || 'ADMIN_BACKOFFICE',
         paket_besar: matchOptionValue(rawPaket, ['TR', 'MTR']),
         nama_lengkap: getVal(['nama_lengkap', 'NAMA LENGKAP (Kapital)']),
         no_ktp: getVal(['no_ktp', 'NO KTP (16 Angka)']),
