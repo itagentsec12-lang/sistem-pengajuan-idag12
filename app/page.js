@@ -16,19 +16,24 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(120);
 
+  // State navin add kele ahe Monitoring restriction sathi
+  const [canInput, setCanInput] = useState(true);
+  const [isMonitor, setIsMonitor] = useState(false);
+
   useEffect(() => {
     fetchInitialConfig();
     const savedEmail = localStorage.getItem('user_app_email');
     if (savedEmail) {
       setUserEmail(savedEmail);
-      fetchSheetsData(true);
+      fetchSheetsData(true, savedEmail);
     }
 
     const timerId = setInterval(() => {
       setCountdown((prevCount) => {
         if (prevCount <= 1) {
-          if (localStorage.getItem('user_app_email')) {
-            fetchSheetsData(false);
+          const activeEmail = localStorage.getItem('user_app_email');
+          if (activeEmail) {
+            fetchSheetsData(false, activeEmail);
           }
           return 120;
         }
@@ -53,16 +58,30 @@ export default function HomePage() {
     }
   };
 
-  const fetchSheetsData = async (isInitial = false) => {
+  const fetchSheetsData = async (isInitial = false, emailToPass = userEmail) => {
     if (isInitial) setLoading(true);
     try {
-      const response = await fetch(GOOGLE_SCRIPT_URL, { cache: 'no-store' });
+      // Send userEmail parameter to Google Apps Script for data filtering
+      const activeEmail = emailToPass || localStorage.getItem('user_app_email') || '';
+      const requestUrl = `${GOOGLE_SCRIPT_URL}?userEmail=${encodeURIComponent(activeEmail)}`;
+      
+      const response = await fetch(requestUrl, { cache: 'no-store' });
       const rawData = await response.json();
 
       if (rawData.submissions) {
         setSubmissions(rawData.submissions);
         if (rawData.allowedEmails) setAllowedEmails(rawData.allowedEmails);
         if (rawData.dropdowns) setDropdowns(rawData.dropdowns);
+        
+        // Handle restriction flags from backend
+        const allowInput = rawData.canInput !== undefined ? rawData.canInput : true;
+        setCanInput(allowInput);
+        setIsMonitor(!!rawData.isMonitor);
+
+        // Force switch to dashboard if user is monitor-only
+        if (!allowInput) {
+          setActiveTab('dashboard');
+        }
       } else if (Array.isArray(rawData)) {
         setSubmissions(rawData);
       }
@@ -103,17 +122,24 @@ export default function HomePage() {
     localStorage.setItem('user_app_email', cleanEmail);
     setUserEmail(cleanEmail);
     setInputEmail('');
-    fetchSheetsData(true);
+    fetchSheetsData(true, cleanEmail);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('user_app_email');
     setUserEmail('');
     setSubmissions([]);
+    setCanInput(true);
+    setIsMonitor(false);
   };
 
   // 1. Submit Single Data (Form Manual)
   const handleDataSubmit = async (formData) => {
+    if (!canInput) {
+      alert("Akses Ditolak: Akun Anda hanya memiliki hak akses Monitoring.");
+      return;
+    }
+
     setLoading(true);
     const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
 
@@ -145,6 +171,11 @@ export default function HomePage() {
 
   // 2. Submit Bulk Data (Upload Excel/CSV Massal dengan Queue + Delay 350ms)
   const handleBulkSubmit = async (bulkArray) => {
+    if (!canInput) {
+      alert("Akses Ditolak: Akun Anda hanya memiliki hak akses Monitoring.");
+      return;
+    }
+
     setLoading(true);
     const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
     let successCount = 0;
@@ -174,7 +205,6 @@ export default function HomePage() {
         failCount++;
       }
 
-      // Jeda 350ms antar-request agar Google Apps Script tidak menolak akibat rate-limit
       await new Promise((resolve) => setTimeout(resolve, 350));
     }
 
@@ -185,6 +215,11 @@ export default function HomePage() {
 
   // 3. Update Existing Data (Edit dari Dashboard)
   const handleUpdateSubmit = async (updatedFormData) => {
+    if (!canInput) {
+      alert("Akses Ditolak: Akun Anda hanya memiliki hak akses Monitoring.");
+      return;
+    }
+
     setLoading(true);
     const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
 
@@ -203,7 +238,6 @@ export default function HomePage() {
         redirect: 'follow',
       });
 
-      // BACA DENGAN SAFE PARSING (Mencegah error JSON saat redirect Apps Script)
       const resText = await response.text();
       let result = {};
 
@@ -217,13 +251,12 @@ export default function HomePage() {
 
       if (result.status === 'success' || response.ok) {
         alert('Data berhasil diperbarui!');
-        fetchSheetsData(); // Refresh data di tabel
+        fetchSheetsData();
       } else {
         alert('Gagal memperbarui data: ' + (result.message || result.error || 'Terjadi kesalahan server'));
       }
     } catch (error) {
       console.error('Error update:', error);
-      // Fallback jika Google Sheets sukses menerima data tapi browser memblokir respon CORS
       alert('Data berhasil diperbarui!');
       fetchSheetsData();
     } finally {
@@ -273,6 +306,7 @@ export default function HomePage() {
             <h1 className="text-xl font-bold text-gray-900">Sistem Informasi Pengajuan ID</h1>
             <p className="text-xs text-gray-500">
               User Logged in: <span className="font-semibold text-blue-600">{userEmail}</span>
+              {isMonitor && <span className="ml-2 px-2 py-0.5 text-[10px] bg-amber-100 text-amber-800 font-bold rounded-full">MODE MONITOR</span>}
             </p>
           </div>
 
@@ -304,15 +338,19 @@ export default function HomePage() {
               >
                 Dashboard Monitor
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('input')}
-                className={`px-4 py-2 text-xs font-semibold rounded-lg transition ${
-                  activeTab === 'input' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Form Input ID
-              </button>
+
+              {/* Hide "Form Input ID" tab if user is monitor-only */}
+              {canInput && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('input')}
+                  className={`px-4 py-2 text-xs font-semibold rounded-lg transition ${
+                    activeTab === 'input' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Form Input ID
+                </button>
+              )}
             </div>
 
             <button
@@ -330,7 +368,7 @@ export default function HomePage() {
             <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-3"></div>
             <p className="text-sm text-gray-600 font-medium">Memuat & Memproses Data...</p>
           </div>
-        ) : activeTab === 'input' ? (
+        ) : activeTab === 'input' && canInput ? (
           <InputForm 
             userEmail={userEmail} 
             dropdowns={dropdowns} 
@@ -343,6 +381,8 @@ export default function HomePage() {
             userEmail={userEmail}
             dropdowns={dropdowns}
             onUpdateSubmit={handleUpdateSubmit}
+            canInput={canInput}
+            isMonitor={isMonitor}
           />
         )}
       </div>
