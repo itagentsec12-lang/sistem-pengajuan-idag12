@@ -301,19 +301,31 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 bg-white p-4 rounded-xl border shadow-sm">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Sistem Informasi Pengajuan ID</h1>
-            <p className="text-xs text-gray-500">
-              User Logged in: <span className="font-semibold text-blue-600">{userEmail}</span>
-              {isMonitor && <span className="ml-2 px-2 py-0.5 text-[10px] bg-amber-100 text-amber-800 font-bold rounded-full">MODE MONITOR</span>}
+        <header className="bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 transition-all">
+          {/* Info App & User */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                Sistem Informasi Pengajuan ID
+              </h1>
+              {isMonitor && (
+                <span className="px-2.5 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80 rounded-full">
+                  MODE MONITOR
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500">
+              User Logged in: <span className="font-semibold text-indigo-600">{userEmail}</span>
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
-              <span className="text-xs text-gray-600">🔄 Auto sync dalam:</span>
-              <strong className="text-xs text-blue-600 font-mono">
+          {/* Controls: Timer, Sync, Tabs, Logout */}
+          <div className="flex flex-wrap items-center gap-3">
+            
+            {/* Auto Sync Badge & Button */}
+            <div className="flex items-center gap-2 bg-slate-100/80 border border-slate-200/60 px-3 py-1.5 rounded-xl text-xs text-slate-600">
+              <span>Auto sync dalam:</span>
+              <strong className="font-mono font-bold text-indigo-600">
                 {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
               </strong>
               <button
@@ -322,18 +334,21 @@ export default function HomePage() {
                   fetchSheetsData(true);
                   setCountdown(120);
                 }}
-                className="ml-1 text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded transition-colors"
+                className="ml-1 px-2.5 py-1 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-lg shadow-sm transition-all duration-150"
               >
                 Sync Data
               </button>
             </div>
 
-            <div className="flex bg-gray-200 p-1 rounded-xl">
+            {/* Tab Switcher */}
+            <div className="flex bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
               <button
                 type="button"
                 onClick={() => setActiveTab('dashboard')}
-                className={`px-4 py-2 text-xs font-semibold rounded-lg transition ${
-                  activeTab === 'dashboard' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                  activeTab === 'dashboard'
+                    ? 'bg-white text-indigo-600 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
                 Dashboard Monitor
@@ -344,8 +359,10 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('input')}
-                  className={`px-4 py-2 text-xs font-semibold rounded-lg transition ${
-                    activeTab === 'input' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                    activeTab === 'input'
+                      ? 'bg-white text-indigo-600 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
                   Form Input ID
@@ -353,13 +370,15 @@ export default function HomePage() {
               )}
             </div>
 
+            {/* Logout Button */}
             <button
               type="button"
               onClick={handleLogout}
-              className="px-3 py-2 text-xs font-medium text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 transition-colors"
+              className="px-3.5 py-2 text-xs font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200/80 rounded-xl transition-all duration-200"
             >
               Logout
             </button>
+
           </div>
         </header>
 
