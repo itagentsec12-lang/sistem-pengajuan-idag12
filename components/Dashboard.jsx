@@ -212,33 +212,42 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
               )}
             </tbody>
           </table>
-          {/* Tombol Navigasi Pagination diletakkan DI LUAR tabel */}
-        <div className="flex items-center justify-between mt-4 px-2">
-          <div className="text-sm text-gray-600">
-            Menampilkan {filteredData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} - {Math.min(currentPage * itemsPerPage, filteredData.length)} dari {filteredData.length} data
+        {/* --- MODERN PAGINATION FOOTER --- */}
+        <div className="px-6 py-4 bg-slate-50/60 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          
+          {/* Info Jumlah Data */}
+          <div className="font-medium">
+            Menampilkan <span className="font-semibold text-slate-800">{filteredData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> - <span className="font-semibold text-slate-800">{Math.min(currentPage * itemsPerPage, filteredData.length)}</span> dari <span className="font-semibold text-slate-800">{filteredData.length}</span> data
           </div>
 
+          {/* Control Tombol Halaman */}
           <div className="flex items-center gap-2">
+            {/* Tombol Sebelumnya */}
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 border rounded bg-white disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200/80 rounded-xl font-medium text-slate-700 shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:text-indigo-600 disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-slate-700 disabled:hover:border-slate-200/80 disabled:cursor-not-allowed transition-all duration-150 active:scale-95"
             >
-              Sebelumnya
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+              <span>Sebelumnya</span>
             </button>
 
-            <span className="text-sm font-medium">
-              Halaman {currentPage} dari {totalPages}
-            </span>
+            {/* Indikator Halaman */}
+            <div className="px-3 py-1.5 bg-slate-100/80 border border-slate-200/60 rounded-xl font-semibold text-slate-700">
+              <span className="text-indigo-600">{currentPage}</span> / <span className="text-slate-500">{totalPages}</span>
+            </div>
 
+            {/* Tombol Selanjutnya */}
             <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded bg-white disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200/80 rounded-xl font-medium text-slate-700 shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:text-indigo-600 disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-slate-700 disabled:hover:border-slate-200/80 disabled:cursor-not-allowed transition-all duration-150 active:scale-95"
             >
-              Selanjutnya
+              <span>Selanjutnya</span>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
             </button>
           </div>
+
         </div>
       </div>
 
