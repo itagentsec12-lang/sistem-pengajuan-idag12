@@ -319,5 +319,6 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
         </div>
       )}
     </div>
+    </div>
   );
 }
