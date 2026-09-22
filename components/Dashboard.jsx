@@ -24,22 +24,17 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
 
   // Mengecek apakah pengguna yang login adalah Admin
   const isAdmin = adminEmails.includes(userEmail?.toLowerCase().trim());
-
   const isMonitorUser = isAdmin || isMonitor;
 
-  // 1. Filter Akses Data (Admin melihat semua, User biasa hanya data miliknya sendiri)
+  // 1. Filter Akses Data
   const accessibleSubmissions = submissions.filter((item) => {
-  if (isMonitorUser) return true; // Super User bisa lihat SEMUA
-  
-  // User biasa haya melihat data miliknya
-  const pembuatData = (item.created_by || item.email || '').toLowerCase().trim();
-  const emailLogin = (userEmail || '').toLowerCase().trim();
-  
-  // 2. Return tetap ada di sini!
-  return pembuatData === emailLogin; 
-});
+    if (isMonitorUser) return true;
+    const pembuatData = (item.created_by || item.email || '').toLowerCase().trim();
+    const emailLogin = (userEmail || '').toLowerCase().trim();
+    return pembuatData === emailLogin; 
+  });
 
-  // 2. Filter Pencarian dan Tanggal Sheet dari data yang memiliki akses
+  // 2. Filter Pencarian dan Tanggal Sheet
   const filteredData = accessibleSubmissions.filter((item) => {
     const term = (searchTerm || '').toLowerCase().trim();
 
@@ -61,12 +56,6 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredData, currentPage, itemsPerPage]);
-
-  // Reset ke halaman 1 jika user mengetik di kolom pencarian
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-  };
 
   const availableSheets = Array.from(new Set(accessibleSubmissions.map(s => s.sheet_date || 'Utama')));
   const totalPengajuan = filteredData.length;
@@ -102,7 +91,10 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
             type="text"
             placeholder="Cari Nama, DP, NIK..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full sm:w-64 p-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500"
           />
 
@@ -183,7 +175,6 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
                     </td>
 
                     <td className="p-3 text-center flex justify-center gap-1.5">
-                      {/* Tombol Edit (Hanya Aktif jika Status HR & IT Masih PENDING) */}
                       {(item.check_hr || '').toUpperCase() === 'PENDING' && (item.check_it || '').toUpperCase() === 'PENDING' ? (
                         <button
                           onClick={() => setSelectedEdit(item)}
@@ -193,9 +184,9 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
                         </button>
                       ) : (
                         <button
-                            disabled
-                            title="Data sudah diproses, tidak dapat diubah"
-                            className="px-3 py-1 bg-gray-100 text-gray-400 border border-gray-200 rounded-lg font-semibold cursor-not-allowed"
+                          disabled
+                          title="Data sudah diproses, tidak dapat diubah"
+                          className="px-3 py-1 bg-gray-100 text-gray-400 border border-gray-200 rounded-lg font-semibold cursor-not-allowed"
                         >
                           Edit
                         </button>
@@ -212,6 +203,8 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
               )}
             </tbody>
           </table>
+        </div>
+
         {/* --- MODERN PAGINATION FOOTER --- */}
         <div className="px-6 py-4 bg-slate-50/60 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           
@@ -260,7 +253,11 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
               <div>
                 <h3 className="text-lg font-bold text-slate-900">Detail Lengkap Pengajuan</h3>
-                <p className="text-xs text-slate-500">Email Pemohon: {selectedDetail.email_pemohon || '-'}</p>
+                <p className="text-xs text-slate-500">
+                  Email Pemohon: <span className="font-semibold text-slate-700">
+                    {selectedDetail.email_pemohon || selectedDetail.email || selectedDetail.created_by || selectedDetail.Email || selectedDetail['Email Pemohon'] || '-'}
+                  </span>
+                </p>
               </div>
               <button 
                 onClick={() => setSelectedDetail(null)}
@@ -372,6 +369,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
           </div>
         </div>
       )}
+
       {/* Modal Form Edit */}
       {selectedEdit && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -389,24 +387,23 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
               </button>
             </div>
 
-              <InputForm 
-                userEmail={userEmail}
-                dropdowns={dropdowns}
-                initialData={selectedEdit} 
-                onDataSubmit={(updatedFormData) => {
-                  onUpdateSubmit({ 
-                    ...updatedFormData, 
-                    action: 'update',
-                    rowIndex: selectedEdit.rowIndex || selectedEdit.row,
-                    sheetName: selectedEdit.sheet_date || selectedEdit.sheetName 
-                  });
-                  setSelectedEdit(null);
-                }} 
-              />
+            <InputForm 
+              userEmail={userEmail}
+              dropdowns={dropdowns}
+              initialData={selectedEdit} 
+              onDataSubmit={(updatedFormData) => {
+                onUpdateSubmit({ 
+                  ...updatedFormData, 
+                  action: 'update',
+                  rowIndex: selectedEdit.rowIndex || selectedEdit.row,
+                  sheetName: selectedEdit.sheet_date || selectedEdit.sheetName 
+                });
+                setSelectedEdit(null);
+              }} 
+            />
           </div>
         </div>
       )}
-    </div>
     </div>
   );
 }
