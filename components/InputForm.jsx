@@ -410,7 +410,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
           {/* 1. RM */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">1. RM (Regional Manager)</label>
-            <select name="rm" value={formData.rm} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 border rounded-lg text-sm bg-white">
+            <select name="rm" value={formData.rm} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 bg-white text-slate-900 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all">
               <option value="">-- Pilih RM --</option>
               {rmList.map((opt, i) => (
                 <option key={i} value={String(opt).trim()}>{opt}</option>
@@ -421,7 +421,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
           {/* 2. NAMA DP / DC */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">2. NAMA DP / DC</label>
-            <select name="nama_dp" value={formData.nama_dp} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 border rounded-lg text-sm bg-white">
+            <select name="nama_dp" value={formData.nama_dp} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 bg-white text-slate-900 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all">
               <option value="">-- Pilih DP / DC --</option>
               {dpList.map((opt, i) => (
                 <option key={i} value={String(opt).trim()}>{opt}</option>
@@ -432,19 +432,19 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
           {/* 3. KODE TLC */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">3. KODE TLC (Kapital)</label>
-            <input type="text" name="tlc" placeholder="TGR12E" value={formData.tlc} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 border rounded-lg text-sm uppercase" />
+            <input type="text" name="tlc" placeholder="TGR12E" value={formData.tlc} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 4. KODE KE 3 */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">4. KODE KE 3</label>
-            <input type="text" name="kode_ke3" placeholder="Free Text" value={formData.kode_ke3} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="kode_ke3" placeholder="Free Text" value={formData.kode_ke3} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 5. DP OWNERLESS VENDOR */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">5. DP OWNERLESS VENDOR</label>
-            <select name="dp_ownerless" value={formData.dp_ownerless} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm bg-white">
+            <select name="dp_ownerless" value={formData.dp_ownerless} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all">
               <option value="">-- Pilih Ownerless --</option>
               {ownerlessList.map((opt, idx) => (
                 <option key={idx} value={String(opt).trim()}>{opt}</option>
@@ -455,7 +455,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
           {/* 6. DP MITRA VENDOR */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">6. DP MITRA VENDOR</label>
-            <select name="dp_mitra" value={formData.dp_mitra} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm bg-white">
+            <select name="dp_mitra" value={formData.dp_mitra} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all">
               <option value="">-- Pilih Mitra --</option>
               {mitraList.map((opt, idx) => (
                 <option key={idx} value={String(opt).trim()}>{opt}</option>
@@ -466,19 +466,19 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
           {/* 7. NO REKENING */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">7. NO REKENING</label>
-            <input type="text" name="no_rekening" placeholder="Nomor Rekening" value={formData.no_rekening} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="no_rekening" placeholder="Nomor Rekening" value={formData.no_rekening} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 8. POD NPWP */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">8. POD NPWP</label>
-            <input type="text" name="pod_npwp" placeholder="Nomor POD NPWP" value={formData.pod_npwp} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="pod_npwp" placeholder="Nomor POD NPWP" value={formData.pod_npwp} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 9. POSISI */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">9. POSISI</label>
-            <select name="posisi" value={formData.posisi} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm bg-white">
+            <select name="posisi" value={formData.posisi} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all">
               {posisiOptions.map((opt, i) => (
                 <option key={i} value={opt}>{opt}</option>
               ))}
@@ -488,7 +488,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
           {/* 10. PAKET BESAR */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">10. ISI JIKA PAKET BESAR</label>
-            <select name="paket_besar" value={formData.paket_besar} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm bg-white">
+            <select name="paket_besar" value={formData.paket_besar} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all">
               <option value="">-- Tanpa Paket Besar --</option>
               <option value="TR">TR</option>
               <option value="MTR">MTR</option>
@@ -498,73 +498,73 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
           {/* 11. NAMA LENGKAP */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">11. NAMA LENGKAP (Kapital)</label>
-            <input type="text" name="nama_lengkap" placeholder="Sesuai KTP" value={formData.nama_lengkap} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 border rounded-lg text-sm uppercase" />
+            <input type="text" name="nama_lengkap" placeholder="Sesuai KTP" value={formData.nama_lengkap} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 12. NO KTP */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">12. NO KTP (16 Angka)</label>
-            <input type="text" name="no_ktp" maxLength={16} placeholder="16 Digit NIK" value={formData.no_ktp} onChange={handleChange} onBlur={handleNikBlur} disabled={!session.isActive} required className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="no_ktp" maxLength={16} placeholder="16 Digit NIK" value={formData.no_ktp} onChange={handleChange} onBlur={handleNikBlur} disabled={!session.isActive} required className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 13. NO HP */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">13. NO HP</label>
-            <input type="text" name="nohp" placeholder="08xxxxxxxxxx" value={formData.nohp} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="nohp" placeholder="08xxxxxxxxxx" value={formData.nohp} onChange={handleChange} disabled={!session.isActive} required className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 14. EMAIL */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">14. EMAIL</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 15. LINK FOTO KTP */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">15. LINK FOTO KTP (DRIVE)</label>
-            <input type="url" name="link_ktp" placeholder="https://drive.google.com/..." value={formData.link_ktp} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="url" name="link_ktp" placeholder="https://drive.google.com/..." value={formData.link_ktp} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 16. ALAMAT */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">16. ALAMAT</label>
-            <input type="text" name="alamat" placeholder="Alamat Domisili" value={formData.alamat} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="alamat" placeholder="Alamat Domisili" value={formData.alamat} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 17. NAMA MEREKOMENDASIKAN */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">17. NAMA YANG MEREKOMENDASIKAN</label>
-            <input type="text" name="nama_merekomendasikan" placeholder="Nama Perekomendasi" value={formData.nama_merekomendasikan} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="nama_merekomendasikan" placeholder="Nama Perekomendasi" value={formData.nama_merekomendasikan} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 18. NIK MEREKOMENDASIKAN */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">18. NIK KTP YANG MEREKOMENDASIKAN</label>
-            <input type="text" name="nik_merekomendasikan" placeholder="NIK Perekomendasi" value={formData.nik_merekomendasikan} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="nik_merekomendasikan" placeholder="NIK Perekomendasi" value={formData.nik_merekomendasikan} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 19. NAMA PIC */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">19. NAMA PIC</label>
-            <input type="text" name="nama_pic" placeholder="Nama PIC" value={formData.nama_pic} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="nama_pic" placeholder="Nama PIC" value={formData.nama_pic} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 20. KOORDINATOR */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">20. KOORDINATOR</label>
-            <input type="text" name="koordinator" placeholder="Nama Koordinator" value={formData.koordinator} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="koordinator" placeholder="Nama Koordinator" value={formData.koordinator} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 21. POSISI MEREKOMENDASIKAN */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">21. POSISI YANG MEREKOMENDASIKAN</label>
-            <input type="text" name="posisi_merekomendasikan" placeholder="Posisi Perekomendasi" value={formData.posisi_merekomendasikan} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="posisi_merekomendasikan" placeholder="Posisi Perekomendasi" value={formData.posisi_merekomendasikan} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           {/* 22. KETERANGAN */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">22. KETERANGAN</label>
-            <input type="text" name="keterangan" placeholder="Catatan" value={formData.keterangan} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 border rounded-lg text-sm" />
+            <input type="text" name="keterangan" placeholder="Catatan" value={formData.keterangan} onChange={handleChange} disabled={!session.isActive} className="w-full p-2.5 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition-all" />
           </div>
 
           <div className="md:col-span-2 lg:col-span-3 flex justify-end mt-4">

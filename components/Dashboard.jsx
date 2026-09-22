@@ -242,45 +242,124 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
         </div>
       </div>
 
-      {/* Modal Detail Lengkap */}
+      {/* --- MODAL DETAIL --- */}
       {selectedDetail && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-4 shadow-2xl">
-            <div className="flex justify-between items-center border-b pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 text-slate-800">
+            
+            {/* Header Modal */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
               <div>
-                <h3 className="font-bold text-lg text-gray-800">Detail Lengkap Pengajuan</h3>
-                <p className="text-xs text-gray-500">Email Pemohon: {selectedDetail.email}</p>
+                <h3 className="text-lg font-bold text-slate-900">Detail Lengkap Pengajuan</h3>
+                <p className="text-xs text-slate-500">Email Pemohon: {selectedDetail.email_pemohon || '-'}</p>
               </div>
-              <button onClick={() => setSelectedDetail(null)} className="text-gray-400 hover:text-gray-600 font-bold text-lg">✕</button>
+              <button 
+                onClick={() => setSelectedDetail(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div><span className="text-gray-400">Tanggal Sheet:</span> <p className="font-semibold text-blue-600">{selectedDetail.sheet_date}</p></div>
-              <div><span className="text-gray-400">RM:</span> <p className="font-medium">{selectedDetail.rm}</p></div>
-              <div><span className="text-gray-400">Nama DP/DC:</span> <p className="font-medium">{selectedDetail.nama_dp}</p></div>
-              <div><span className="text-gray-400">TLC:</span> <p className="font-medium">{selectedDetail.tlc}</p></div>
-              <div><span className="text-gray-400">Kode ke 3:</span> <p className="font-medium">{selectedDetail.kode_ke3}</p></div>
-              <div><span className="text-gray-400">DP Ownerless:</span> <p className="font-medium">{selectedDetail.dp_ownerless}</p></div>
-              <div><span className="text-gray-400">DP Mitra:</span> <p className="font-medium">{selectedDetail.dp_mitra}</p></div>
-              <div><span className="text-gray-400">No Rekening:</span> <p className="font-medium">{selectedDetail.no_rekening}</p></div>
-              <div><span className="text-gray-400">POD NPWP:</span> <p className="font-medium">{selectedDetail.pod_npwp || '-'}</p></div>
-              <div><span className="text-gray-400">Posisi:</span> <p className="font-medium">{selectedDetail.posisi}</p></div>
-              <div><span className="text-gray-400">Paket Besar:</span> <p className="font-medium">{selectedDetail.paket_besar || '-'}</p></div>
-              <div><span className="text-gray-400">Nama Lengkap:</span> <p className="font-medium">{selectedDetail.nama_lengkap}</p></div>
-              <div><span className="text-gray-400">No KTP:</span> <p className="font-medium">{selectedDetail.no_ktp}</p></div>
-              <div><span className="text-gray-400">No HP:</span> <p className="font-medium">{selectedDetail.nohp}</p></div>
-              <div><span className="text-gray-400">Check HR:</span> <p className="font-semibold text-emerald-600">{selectedDetail.check_hr || 'PENDING'}</p></div>
-              <div><span className="text-gray-400">Check IT:</span> <p className="font-semibold text-emerald-600">{selectedDetail.check_it || 'PENDING'}</p></div>
-              <div className="col-span-2"><span className="text-gray-400">Link KTP:</span> <p className="font-medium break-all text-blue-600">{selectedDetail.link_ktp}</p></div>
-              <div><span className="text-gray-400">Alamat:</span> <p className="font-medium">{selectedDetail.alamat}</p></div>
-              <div><span className="text-gray-400">Keterangan:</span> <p className="font-medium">{selectedDetail.keterangan || '-'}</p></div>
+            {/* Grid Informasi Detail */}
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Tanggal Sheet</p>
+                <p className="font-bold text-indigo-600 mt-0.5">{selectedDetail.sheet_date || '-'}</p>
+              </div>
+              
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">RM</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedDetail.rm || '-'}</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Nama DP/DC</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedDetail.nama_dp || '-'}</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">TLC</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedDetail.tlc || '-'}</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Nama Lengkap</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedDetail.nama_lengkap || '-'}</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Posisi</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedDetail.posisi || '-'}</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">No KTP</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedDetail.no_ktp || '-'}</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">No HP</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedDetail.no_hp || '-'}</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Check HR</p>
+                <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-md font-semibold text-[10px] ${
+                  selectedDetail.check_hr === 'APPROVE' 
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' 
+                    : 'bg-rose-50 text-rose-700 border border-rose-200/60'
+                }`}>
+                  {selectedDetail.check_hr || 'PENDING'}
+                </span>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Check IT</p>
+                <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-md font-semibold text-[10px] ${
+                  selectedDetail.check_it === 'APPROVE' 
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' 
+                    : 'bg-rose-50 text-rose-700 border border-rose-200/60'
+                }`}>
+                  {selectedDetail.check_it || 'PENDING'}
+                </span>
+              </div>
+
+              <div className="col-span-2">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Link KTP</p>
+                {selectedDetail.link_ktp ? (
+                  <a 
+                    href={selectedDetail.link_ktp} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-indigo-600 hover:underline break-all font-medium mt-0.5 inline-block"
+                  >
+                    {selectedDetail.link_ktp}
+                  </a>
+                ) : '-'}
+              </div>
+
+              <div className="col-span-2">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Alamat</p>
+                <p className="font-medium text-slate-800 mt-0.5">{selectedDetail.alamat || '-'}</p>
+              </div>
+
+              <div className="col-span-2">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Keterangan</p>
+                <p className="font-medium text-slate-800 mt-0.5 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">{selectedDetail.keterangan || '-'}</p>
+              </div>
             </div>
 
-            <div className="flex justify-end pt-3 border-t">
-              <button onClick={() => setSelectedDetail(null)} className="px-5 py-2 bg-gray-100 text-gray-700 rounded-lg text-xs font-semibold hover:bg-gray-200">
+            {/* Footer Modal */}
+            <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => setSelectedDetail(null)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all"
+              >
                 Tutup
               </button>
             </div>
+
           </div>
         </div>
       )}
