@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import InputForm from './InputForm';
 
-export default function Dashboard({ submissions = [], userEmail = '', onUpdateSubmit, dropdowns }) {
+export default function Dashboard({ submissions = [], userEmail = '', isMonitor = false, onUpdateSubmit, dropdowns }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSheet, setSelectedSheet] = useState('ALL');
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [selectedEdit, setSelectedEdit] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Daftar Email Admin / Super User yang BISA melihat semua data
   const adminEmails = [
@@ -23,11 +25,13 @@ export default function Dashboard({ submissions = [], userEmail = '', onUpdateSu
   // Mengecek apakah pengguna yang login adalah Admin
   const isAdmin = adminEmails.includes(userEmail?.toLowerCase().trim());
 
+  const isMonitorUser = isAdmin || isMonitor;
+
   // 1. Filter Akses Data (Admin melihat semua, User biasa hanya data miliknya sendiri)
   const accessibleSubmissions = submissions.filter((item) => {
-  if (isAdmin) return true; // Super User bisa lihat SEMUA
+  if (isMonitorUser) return true; // Super User bisa lihat SEMUA
   
-  // 1. Simpan nilai ke variabel dulu
+  // User biasa haya melihat data miliknya
   const pembuatData = (item.created_by || item.email || '').toLowerCase().trim();
   const emailLogin = (userEmail || '').toLowerCase().trim();
   
@@ -37,15 +41,32 @@ export default function Dashboard({ submissions = [], userEmail = '', onUpdateSu
 
   // 2. Filter Pencarian dan Tanggal Sheet dari data yang memiliki akses
   const filteredData = accessibleSubmissions.filter((item) => {
-    const matchesSearch =
-      (item.nama_lengkap || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.nama_dp || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.no_ktp || '').includes(searchTerm);
+    const term = (searchTerm || '').toLowerCase().trim();
+
+    const matchesSearch = !term ||
+      (item.nama_lengkap || '').toLowerCase().includes(term) ||
+      (item.nama_dp || '').toLowerCase().includes(term) ||
+      (item.no_ktp || '').includes(term);
 
     const matchesSheet = selectedSheet === 'ALL' || item.sheet_date === selectedSheet;
 
     return matchesSearch && matchesSheet;
   });
+
+  // Hitung total halaman
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
+
+  // Potong data sesuai halaman aktif
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredData, currentPage, itemsPerPage]);
+
+  // Reset ke halaman 1 jika user mengetik di kolom pencarian
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
 
   const availableSheets = Array.from(new Set(accessibleSubmissions.map(s => s.sheet_date || 'Utama')));
   const totalPengajuan = filteredData.length;
@@ -118,14 +139,14 @@ export default function Dashboard({ submissions = [], userEmail = '', onUpdateSu
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredData.length === 0 ? (
+              {paginatedData.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center py-10 text-gray-400">
                     Tidak ada data pengajuan yang ditemukan untuk email ini.
                   </td>
                 </tr>
               ) : (
-                filteredData.map((item, index) => (
+                paginatedData.map((item, index) => (
                   <tr key={index} className="hover:bg-gray-50/80 transition">
                     <td className="p-3 font-semibold text-blue-600 whitespace-nowrap">
                       {item.sheet_date || '-'}
@@ -191,6 +212,33 @@ export default function Dashboard({ submissions = [], userEmail = '', onUpdateSu
               )}
             </tbody>
           </table>
+          {/* Tombol Navigasi Pagination diletakkan DI LUAR tabel */}
+        <div className="flex items-center justify-between mt-4 px-2">
+          <div className="text-sm text-gray-600">
+            Menampilkan {filteredData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} - {Math.min(currentPage * itemsPerPage, filteredData.length)} dari {filteredData.length} data
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border rounded bg-white disabled:opacity-50"
+            >
+              Sebelumnya
+            </button>
+
+            <span className="text-sm font-medium">
+              Halaman {currentPage} dari {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 border rounded bg-white disabled:opacity-50"
+            >
+              Selanjutnya
+            </button>
+          </div>
         </div>
       </div>
 
