@@ -306,7 +306,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
 
               <div>
                 <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">No HP</p>
-                <p className="font-bold text-slate-900 mt-0.5">{selectedDetail.no_hp || '-'}</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedDetail.nohp || '-'}</p>
               </div>
 
               <div>

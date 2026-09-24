@@ -21,7 +21,7 @@ export default function InputForm({ userEmail, dropdowns = {}, onDataSubmit, onB
     paket_besar: '',
     nama_lengkap: '',
     no_ktp: '',
-    no_hp: '',
+    nohp: '',
     email: userEmail || '',
     link_ktp: '',
     alamat: '',
