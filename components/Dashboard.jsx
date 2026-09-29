@@ -343,8 +343,15 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
                       <td className="p-3 text-center"><StatusBadge status={item.check_hr} /></td>
                       <td className="p-3 text-center">
                         <div className="flex items-center justify-center gap-1.5">
-                          <button disabled={updatingId === `${item.rowIndex}-check_hr`} onClick={() => handleStatusChange(item, 'check_hr', 'APPROVED')} className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition disabled:opacity-50">Approve</button>
-                          <button disabled={updatingId === `${item.rowIndex}-check_hr`} onClick={() => handleStatusChange(item, 'check_hr', 'REJECTED')} className="px-2.5 py-1 bg-rose-600 text-white rounded-lg font-bold hover:bg-rose-700 transition disabled:opacity-50">Reject</button>
+                          {/* HANYA MUNCULKAN TOMBOL APPROVE & REJECT JIKA STATUS HR 'PENDING' */}
+                          {(item.check_hr || 'PENDING').toUpperCase() === 'PENDING' ? (
+                            <>
+                              <button disabled={updatingId === `${item.rowIndex}-check_hr`} onClick={() => handleStatusChange(item, 'check_hr', 'APPROVED')} className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition disabled:opacity-50">Approve</button>
+                              <button disabled={updatingId === `${item.rowIndex}-check_hr`} onClick={() => handleStatusChange(item, 'check_hr', 'REJECTED')} className="px-2.5 py-1 bg-rose-600 text-white rounded-lg font-bold hover:bg-rose-700 transition disabled:opacity-50">Reject</button>
+                            </>
+                          ) : (
+                            <span className="text-[11px] font-medium text-slate-400 italic px-2 py-0.5">Selesai</span>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -392,8 +399,13 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
                       <td className="p-3 text-center"><StatusBadge status={item.check_it} /></td>
                       <td className="p-3 text-center">
                         <div className="flex items-center justify-center gap-1.5">
-                          <button disabled={updatingId === `${item.rowIndex}-check_it`} onClick={() => handleStatusChange(item, 'check_it', 'APPROVED')} className="px-2.5 py-1 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50">Approve</button>
-                          <button disabled={updatingId === `${item.rowIndex}-check_it`} onClick={() => handleStatusChange(item, 'check_it', 'REJECTED')} className="px-2.5 py-1 bg-rose-600 text-white rounded-lg font-bold hover:bg-rose-700 transition disabled:opacity-50">Reject</button>
+                          {/* HANYA MUNCULKAN TOMBOL APPROVE & REJECT JIKA STATUS IT 'PENDING' */}
+                          {(item.check_it || 'PENDING').toUpperCase() === 'PENDING' ? (
+                            <>
+                              <button disabled={updatingId === `${item.rowIndex}-check_it`} onClick={() => handleStatusChange(item, 'check_it', 'DONE')} className="px-2.5 py-1 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50">Approve</button>
+                              <button disabled={updatingId === `${item.rowIndex}-check_it`} onClick={() => handleStatusChange(item, 'check_it', 'REJECT')} className="px-2.5 py-1 bg-rose-600 text-white rounded-lg font-bold hover:bg-rose-700 transition disabled:opacity-50">Reject</button>
+                            </>
+                          ) : null}
                           <button onClick={() => setSelectedDetail(item)} className="px-2 py-1 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 text-[10px]">Detail</button>
                         </div>
                       </td>
@@ -420,7 +432,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
         </div>
       </div>
 
-      {/* MODAL DETAIL & EDIT (Sama seperti sebelumnya) */}
+      {/* MODAL DETAIL */}
       {selectedDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 text-slate-800">
@@ -448,6 +460,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
         </div>
       )}
 
+      {/* MODAL EDIT */}
       {selectedEdit && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
@@ -476,13 +489,20 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
   );
 }
 
+// KOMPONEN STATUS BADGE DIPERBARUI
 function StatusBadge({ status }) {
-  const st = (status || 'PENDING').toUpperCase();
-  if (st === 'APPROVED' || st === 'OK' || st === 'APPROVE') {
+  const st = (status || 'PENDING').toUpperCase().trim();
+  
+  // Membaca DONE, APPROVED, APPROVE, atau OK sebagai APPROVED (Badge Hijau)
+  if (st === 'APPROVED' || st === 'OK' || st === 'APPROVE' || st === 'DONE') {
     return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">APPROVED</span>;
   }
+  
+  // Membaca REJECTED atau REJECT sebagai REJECTED (Badge Merah)
   if (st === 'REJECTED' || st === 'REJECT') {
     return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">REJECTED</span>;
   }
+  
+  // Default status PENDING (Badge Kuning)
   return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">PENDING</span>;
 }
