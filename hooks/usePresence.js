@@ -1,59 +1,48 @@
 // hooks/usePresence.js
-'use client';
-
 import { useEffect, useState } from 'react';
-import { database } from '../lib/firebase';
 import { ref, onValue, set, onDisconnect, serverTimestamp } from 'firebase/database';
+import { database } from '@/lib/firebase';
 
-export function usePresence(userEmail, activeTab) {
-  const [onlineUsers, setOnlineUsers] = useState([]);
+export function usePresence(currentUserEmail, currentTab = 'dashboard') {
+  const [onlineUsers, setOnlineUsers] = useState({});
 
   useEffect(() => {
-    if (!userEmail) return;
+    if (!currentUserEmail || !database) return;
 
-    // Bersihkan email dari karakter khusus untuk dijadikan ID unik di Firebase
-    const sanitizedEmailKey = userEmail.replace(/[.#$/[\]]/g, '_');
-    const userStatusRef = ref(database, `status/${sanitizedEmailKey}`);
+    // Bersihkan email untuk Key Firebase
+    const cleanKey = currentUserEmail.replace(/[.#$[\]]/g, '_');
+    
+    // Ganti 'presence' menjadi 'status' sesuai dengan Firebase kamu
+    const userRef = ref(database, `status/${cleanKey}`);
     const connectedRef = ref(database, '.info/connected');
 
-    // Listener Koneksi User
-    const unsubscribeConnect = onValue(connectedRef, (snap) => {
+    const unsubscribeConnected = onValue(connectedRef, (snap) => {
       if (snap.val() === true) {
-        // Ketika koneksi terputus (browser ditutup/offline), hapus data user ini
-        onDisconnect(userStatusRef).remove();
+        // Hapus data saat disconnected/logout
+        onDisconnect(userRef).remove();
 
-        // Daftarkan user sebagai online saat terhubung
-        set(userStatusRef, {
-          email: userEmail,
-          currentTab: activeTab || 'dashboard',
-          lastSeen: serverTimestamp()
+        // Update status online
+        set(userRef, {
+          email: currentUserEmail,
+          currentTab: currentTab,
+          lastSeen: serverTimestamp(),
+          isOnline: true
         });
       }
     });
 
-    // Perbarui tab aktif yang sedang dibuka oleh user saat ini
-    set(ref(database, `status/${sanitizedEmailKey}/currentTab`), activeTab || 'dashboard');
-
-    return () => {
-      unsubscribeConnect();
-    };
-  }, [userEmail, activeTab]);
-
-  // Read Listener untuk Mengambil Semua User yang Sedang Online
-  useEffect(() => {
-    const allStatusRef = ref(database, 'status');
-    const unsubscribeAll = onValue(allStatusRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const usersList = Object.values(data);
-        setOnlineUsers(usersList);
-      } else {
-        setOnlineUsers([]);
-      }
+    // Listening ke node 'status'
+    const statusRef = ref(database, 'status');
+    const unsubscribeStatus = onValue(statusRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setOnlineUsers(data);
     });
 
-    return () => unsubscribeAll();
-  }, []);
+    return () => {
+      unsubscribeConnected();
+      unsubscribeStatus();
+    };
+  }, [currentUserEmail, currentTab]);
 
   return onlineUsers;
 }

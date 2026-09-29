@@ -103,6 +103,10 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
     }
   };
 
+  const activeUsersList = Object.values(onlineUsers || {}).filter(
+    (u) => u && typeof u === 'object' && u.email
+  );
+
   return (
     <div className="space-y-6">
 
@@ -118,8 +122,8 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
               <div>
                 <h4 className="font-bold text-sm tracking-wide flex items-center gap-2">
                   <span>🟢 Monitoring Real-Time User Aktif</span>
-                  <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-mono font-bold border border-emerald-500/30">
-                    {onlineUsers.length} Online
+                  <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-mono font-semibold">
+                    {activeUsersList.length} Online
                   </span>
                 </h4>
                 <p className="text-[11px] text-slate-400 mt-0.5">
@@ -130,21 +134,21 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
 
             {/* List Bubble User Online */}
             <div className="flex items-center gap-2 flex-wrap">
-              {onlineUsers.map((u, i) => (
-                <div 
-                  key={i} 
-                  title={`Email: ${u.email}\nPosisi Tab: ${u.currentTab}`}
-                  className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 px-2.5 py-1 rounded-xl transition"
+              {activeUsersList.map((u, i) => (
+                <div
+                  key={u.email || i}
+                  title={`Email: ${u.email}\nPosisi Tab: ${u.currentTab || '-'}`}
+                  className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 px-2.5 py-1.5 rounded-lg"
                 >
-                  <div className="h-6 w-6 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-[10px] uppercase text-white shadow">
-                    {u.email.substring(0, 2)}
+                  <div className="h-6 w-6 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-[10px]">
+                    {u.email ? u.email.substring(0, 2).toUpperCase() : 'US'}
                   </div>
                   <div className="text-left">
                     <p className="text-[11px] font-semibold text-slate-200 leading-none truncate max-w-[110px]">
-                      {u.email.split('@')[0]}
+                      {u.email ? u.email.split('@')[0] : 'User'}
                     </p>
                     <p className="text-[9px] text-indigo-400 font-mono leading-none mt-0.5">
-                      {u.currentTab}
+                      {u.currentTab || 'Dashboard'}
                     </p>
                   </div>
                 </div>
