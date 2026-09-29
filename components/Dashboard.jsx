@@ -36,7 +36,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
     'itagentsec12@gmail.com'
   ];
 
-  const userEmailClean = (userEmail || '').toLowerCase().trim();
+  const userEmailClean = String(userEmail || '').toLowerCase().trim();
   const isAdmin = adminEmails.map(e => e.toLowerCase()).includes(userEmailClean);
   const isHR = isAdmin || hrEmails.map(e => e.toLowerCase()).includes(userEmailClean);
   const isIT = isAdmin || itEmails.map(e => e.toLowerCase()).includes(userEmailClean);
