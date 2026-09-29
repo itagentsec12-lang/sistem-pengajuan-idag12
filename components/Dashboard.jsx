@@ -330,7 +330,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
                       <td className="p-3 font-medium text-gray-800">{item.nama_dp || '-'}</td>
                       <td className="p-3 text-gray-600">{item.tlc || '-'}</td>
                       <td className="p-3 text-gray-600 font-medium">
-                        {item.ownerless_vendor ? `Ownerless (${item.ownerless_vendor})` : item.mitra_vendor ? `Mitra (${item.mitra_vendor})` : '-'}
+                        {item.ownerless_vendor ? `Ownerless (${item.dp_ownerless})` : item.mitra_vendor ? `Mitra (${item.dp_ownerless})` : '-'}
                       </td>
                       <td className="p-3 font-bold text-gray-900">{item.nama_lengkap || '-'}</td>
                       <td className="p-3 font-mono text-gray-700">{item.no_ktp || '-'}</td>
