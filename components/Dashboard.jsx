@@ -32,7 +32,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
   ];
 
   const itEmails = [
-    'helmiardifebriansyah26@gmail.com',
+    'jet.sigit@gmail.com',
     'itagentsec12@gmail.com'
   ];
 
