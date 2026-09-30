@@ -449,6 +449,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
               <div><p className="text-[11px] font-semibold text-slate-400 uppercase">Nama DP/DC</p><p className="font-bold text-slate-900 mt-0.5">{selectedDetail.nama_dp || '-'}</p></div>
               <div><p className="text-[11px] font-semibold text-slate-400 uppercase">TLC</p><p className="font-bold text-slate-900 mt-0.5">{selectedDetail.tlc || '-'}</p></div>
               <div><p className="text-[11px] font-semibold text-slate-400 uppercase">Nama Lengkap</p><p className="font-bold text-slate-900 mt-0.5">{selectedDetail.nama_lengkap || '-'}</p></div>
+              <div><p className="text-[11px] font-semibold text-slate-400 uppercase">Nik KTP</p><p className="font-bold text-slate-900 mt-0.5">{selectedDetail.no_ktp || '-'}</p></div>
               <div><p className="text-[11px] font-semibold text-slate-400 uppercase">Posisi</p><p className="font-bold text-slate-900 mt-0.5">{selectedDetail.posisi || '-'}</p></div>
               <div><p className="text-[11px] font-semibold text-slate-400 uppercase">Check HR</p><StatusBadge status={selectedDetail.check_hr} /></div>
               <div><p className="text-[11px] font-semibold text-slate-400 uppercase">Check IT</p><StatusBadge status={selectedDetail.check_it} /></div>
