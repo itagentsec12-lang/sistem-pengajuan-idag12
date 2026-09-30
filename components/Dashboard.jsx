@@ -452,6 +452,14 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
               <div><p className="text-[11px] font-semibold text-slate-400 uppercase">Posisi</p><p className="font-bold text-slate-900 mt-0.5">{selectedDetail.posisi || '-'}</p></div>
               <div><p className="text-[11px] font-semibold text-slate-400 uppercase">Check HR</p><StatusBadge status={selectedDetail.check_hr} /></div>
               <div><p className="text-[11px] font-semibold text-slate-400 uppercase">Check IT</p><StatusBadge status={selectedDetail.check_it} /></div>
+              <div className="col-span-2">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Alamat</p>
+                <p className="font-medium text-slate-800 mt-0.5">{selectedDetail.alamat || '-'}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Keterangan</p>
+                <p className="font-medium text-slate-800 mt-0.5 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">{selectedDetail.keterangan || '-'}</p>
+              </div>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end">
               <button onClick={() => setSelectedDetail(null)} className="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs">Tutup</button>
