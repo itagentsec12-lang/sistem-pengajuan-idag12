@@ -82,6 +82,12 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
 
   // Handler Update Status Approval (HR / IT)
   const handleStatusChange = async (item, targetField, newStatus) => {
+    const targetSheetName = item.sheet_date || item.sheetName || (selectedSheet !== 'ALL' ? selectedSheet : '');
+
+    if (!targetSheetName || targetSheetName === 'ALL') {
+      alert('Gagal: Nama sheet/tanggal tidak terdeteksi untuk data ini. Harap pilih tanggal spesifik di filter.');
+      return;
+    }
     const confirmMsg = `Ubah status ${targetField === 'check_hr' ? 'HR' : 'IT'} untuk ${item.nama_lengkap} menjadi ${newStatus}?`;
     if (!window.confirm(confirmMsg)) return;
 
@@ -91,7 +97,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
       await onUpdateSubmit({
         action: 'update_status',
         rowIndex: item.rowIndex || item.row,
-        sheetName: item.sheet_date || item.sheetName || selectedSheet,
+        sheetName: targetSheetName,
         targetField: targetField,
         statusValue: newStatus,
         updatedBy: userEmail
