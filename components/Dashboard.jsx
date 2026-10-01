@@ -91,7 +91,7 @@ export default function Dashboard({ submissions = [], userEmail = '', isMonitor 
       await onUpdateSubmit({
         action: 'update_status',
         rowIndex: item.rowIndex || item.row,
-        sheetName: item.sheet_date || item.sheetName,
+        sheetName: item.sheet_date || item.sheetName || selectedSheet,
         targetField: targetField,
         statusValue: newStatus,
         updatedBy: userEmail
