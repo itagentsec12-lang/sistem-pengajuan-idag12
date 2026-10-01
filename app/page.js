@@ -223,6 +223,8 @@ export default function HomePage() {
     setLoading(true);
     const activeEmail = userEmail || localStorage.getItem('user_app_email') || '';
 
+    const targetAction = updatedFormData.action || 'update';
+
     try {
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
@@ -231,8 +233,8 @@ export default function HomePage() {
         },
         body: JSON.stringify({
           ...updatedFormData,
-          action: 'update',
-          sheetName: updatedFormData.sheet_date || updatedFormData.sheetName,
+          action: targetAction, // ✅ Mempertahankan 'update_status' dari Dashboard.jsx
+          sheetName: updatedFormData.sheetName || updatedFormData.sheet_date,
           createdBy: activeEmail
         }),
         redirect: 'follow',
@@ -250,15 +252,14 @@ export default function HomePage() {
       }
 
       if (result.status === 'success' || response.ok) {
-        alert('Data berhasil diperbarui!');
-        fetchSheetsData();
+        alert(result.message || 'Data berhasil diperbarui!');
+        await fetchSheetsData(); // Sync ulang data terbaru dari spreadsheet
       } else {
         alert('Gagal memperbarui data: ' + (result.message || result.error || 'Terjadi kesalahan server'));
       }
     } catch (error) {
       console.error('Error update:', error);
-      alert('Data berhasil diperbarui!');
-      fetchSheetsData();
+      alert('Terjadi kesalahan koneksi saat memperbarui data.');
     } finally {
       setLoading(false);
     }
